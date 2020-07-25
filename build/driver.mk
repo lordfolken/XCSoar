@@ -50,6 +50,13 @@ LX_SOURCES = \
 	$(DRIVER_SRC_DIR)/LX/LXN.cpp \
 	$(DRIVER_SRC_DIR)/LX/Register.cpp
 
+LXERA_SOURCES = \
+	$(DRIVER_SRC_DIR)/LXERA/Protocol.cpp \
+	$(DRIVER_SRC_DIR)/LXERA/Mode.cpp \
+	$(DRIVER_SRC_DIR)/LXERA/Parser.cpp \
+	$(DRIVER_SRC_DIR)/LXERA/Settings.cpp \
+	$(DRIVER_SRC_DIR)/LXERA/Register.cpp
+
 FLARM_SOURCES = \
 	$(DRIVER_SRC_DIR)/FLARM/Device.cpp \
 	$(DRIVER_SRC_DIR)/FLARM/Register.cpp \
@@ -95,6 +102,7 @@ DRIVER_SOURCES = \
 	$(CAI302_SOURCES) \
 	$(IMI_SOURCES) \
 	$(LX_SOURCES) \
+	$(LXERA_SOURCES) \
 	$(FLARM_SOURCES) \
 	$(FLYTEC_SOURCES) \
 	$(VEGA_SOURCES) \
