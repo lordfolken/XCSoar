@@ -218,7 +218,7 @@ LXEraDevice::ParseNMEA(const char *String, NMEAInfo &info)
       : info.device;
     LXWP1(line, device_info);
 
-    const bool saw_lxera = device_info.product.equals("Lx Eos");
+    const bool saw_lxera = device_info.product.equals("LX Eos");
     LXEra::is_lxera = saw_lxera;
     if (LXEra::is_lxera) {
       LogFormat("LXEra Detected");
