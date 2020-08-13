@@ -148,12 +148,10 @@ namespace LXEra {
   SetQNH(Port &port, OperationEnvironment &env, const AtmosphericPressure &qnh)
   {
     assert(qnh.IsPlausible());
-
-    auto altitude_offset = Units::ToUserUnit(
-        -AtmosphericPressure::StaticPressureToPressureAltitude(qnh),
-        Unit::FEET);
-
-    return SetAltitudeOffset(port, env, altitude_offset);
+    char buffer[100];
+    unsigned QNHinHectoPascal = uround(qnh.GetHectoPascal());
+    sprintf(buffer, "LXDT,SET,MC_BAL,,,,,,,%u", QNHinHectoPascal);
+    return PortWriteNMEA(port, buffer, env);
   }
 
   /**
