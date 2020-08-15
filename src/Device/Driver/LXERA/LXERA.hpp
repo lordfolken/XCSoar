@@ -76,8 +76,13 @@ namespace LXEra {
      * LXWP0: every second
      * LXWP1+3+5: once every 60 seconds
      * LXWP2: once every 10 seconds
+     * LXBC: Broacast Sensor and AHRS information
      */
-    return PortWriteNMEA(port, "PFLX0,LXWP0,1,LXWP1,1,LXWP2,1,LXWP3,1", env);
+    LogFormat("LXEra: Initialize NMEA Port");
+    bool PortWrite;
+    PortWrite = PortWriteNMEA(port, "LXDT,SET,BC_INT,AHRS,0.5,SENS,2", env);
+    PortWrite = PortWriteNMEA(port, "PFLX0,LXWP0,1,LXWP1,5,LXWP2,1,LXWP3,1", env);
+    return PortWrite;
   }
 
   /**
@@ -101,7 +106,7 @@ namespace LXEra {
   static inline bool
   SetBallast(Port &port, OperationEnvironment &env, double overload)
   {
-    assert(overload >= 1.0 && overload <= 1.5);
+    //assert(overload >= 1.0 && overload <= 1.5);
 
     // This is a copy of the routine done in LK8000 for LX MiniMap, realized
     // by Lx developers.
