@@ -233,7 +233,6 @@ LXDT(NMEAInputLine &line, NMEAInfo &info)
         info.switch_state.flight_mode = SwitchState::FlightMode::CIRCLING;
       }
     }
-  }
   return true;
 }
 
