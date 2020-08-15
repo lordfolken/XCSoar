@@ -30,6 +30,7 @@ Copyright_License {
 #include "Engine/GlideSolvers/PolarCoefficients.hpp"
 #include "Units/System.hpp"
 #include "Math/Util.hpp"
+#include "LogFile.hpp"
 
 #include <cassert>
 #include <cstdint>
