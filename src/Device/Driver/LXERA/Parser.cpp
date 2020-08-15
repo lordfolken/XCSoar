@@ -199,6 +199,67 @@ LXWP3(NMEAInputLine &line, NMEAInfo &info)
   return true;
 }
 
+static bool 
+LXDT(NMEAInputLine &line, NMEAInfo &info)
+{
+  char answer[16];
+  line.Read(answer, 16);
+  if (StringIsEqual(answer, "ANS")) {
+    char msgtype[16];
+    line.Read(msgtype, 16);
+    if (StringIsEqual(msgtype, "MC_BAL")) {
+      line.Skip(6);
+      unsigned qnh;
+      if (line.ReadChecked(qnh)) {
+        info.settings.ProvideQNH(AtmosphericPressure::HectoPascal(qnh), info.clock);
+      }
+    }
+      double oat;
+      if (line.ReadChecked(oat)) {
+          info.temperature = Temperature::FromCelsius(oat);
+          info.temperature_available = true;
+      }
+      double main_voltage;
+      if (line.ReadChecked(main_voltage)) {
+         info.voltage = main_voltage;
+         info.voltage_available.Update(info.clock);
+      }
+      line.Skip(4);
+      int sc_mode = 0;
+      line.Read(sc_mode);
+      if (sc_mode == 1) {
+        info.switch_state.flight_mode = SwitchState::FlightMode::CRUISE;
+      } else {
+        info.switch_state.flight_mode = SwitchState::FlightMode::CIRCLING;
+      }
+    }
+  }
+  return true;
+}
+
+static bool
+LXBC(NMEAInputLine &line, NMEAInfo &info)
+{
+  char msgtype[16];
+  line.Read(msgtype, 16);
+  if (StringIsEqual(msgtype, "AHRS")) {
+    line.Skip(4);
+    double gX;
+    if (line.ReadChecked(gX)) {
+      info.acceleration.g_load = gX;
+      info.acceleration.available = true;
+    }
+  if (StringIsEqual(msgtype, "SENS")) {
+    double oat;
+    if (line.ReadChecked(oat)) {
+        info.temperature = Temperature::FromCelsius(oat);
+        info.temperature_available = true;
+        }
+     }
+  }
+  return true;
+}
+
 bool
 LXEraDevice::ParseNMEA(const char *String, NMEAInfo &info)
 {
@@ -234,5 +295,11 @@ LXEraDevice::ParseNMEA(const char *String, NMEAInfo &info)
   if (StringIsEqual(type, "$LXWP3"))
     return LXWP3(line, info);
 
+  if (StringIsEqual(type, "$LXBC"))
+    return LXBC(line, info);
+
+  if (StringIsEqual(type, "$LXDT"))
+    return LXDT(line, info);
+ 
   return false;
 }
