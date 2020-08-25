@@ -71,6 +71,11 @@ Waypoints::WaypointNameTree::Add(WaypointPtr wp)
   AllocatedArray<TCHAR> buffer(wp->name.length() + 1);
   NormalizeSearchString(buffer.data(), wp->name.c_str());
   RadixTree<WaypointPtr>::Add(buffer.data(), std::move(wp));
+  if (!wp->shortname.empty()) {
+    AllocatedArray<TCHAR> buffer(wp->shortname.length() + 1);
+    NormalizeSearchString(buffer.data(), wp->shortname.c_str());
+    RadixTree<WaypointPtr>::Add(buffer.data(), wp);
+  }
 }
 
 inline void
@@ -79,6 +84,11 @@ Waypoints::WaypointNameTree::Remove(const WaypointPtr &wp)
   AllocatedArray<TCHAR> buffer(wp->name.length() + 1);
   NormalizeSearchString(buffer.data(), wp->name.c_str());
   RadixTree<WaypointPtr>::Remove(buffer.data(), wp);
+  if (!wp->shortname.empty()) {
+    AllocatedArray<TCHAR> buffer(wp->shortname.length() + 1);
+    NormalizeSearchString(buffer.data(), wp->shortname.c_str());
+    RadixTree<WaypointPtr>::Remove(buffer.data(), wp);
+  }
 }
 
 Waypoints::Waypoints()
