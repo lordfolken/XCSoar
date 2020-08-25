@@ -89,7 +89,13 @@ Draw(Canvas &canvas, PixelRect rc,
   row_renderer.DrawSecondRow(canvas, rc, buffer);
 
   // Draw waypoint name
-  row_renderer.DrawFirstRow(canvas, rc, waypoint.name.c_str());
+  if (!waypoint.shortname.empty()) {
+    StaticString<256> waypoint_title;
+    waypoint_title.Format(_("%s (%s)"),waypoint.name.c_str(), waypoint.shortname.c_str());
+    row_renderer.DrawFirstRow(canvas, rc, waypoint_title.c_str());
+  } else {
+    row_renderer.DrawFirstRow(canvas, rc, waypoint.name.c_str());
+  }
 }
 
 void
@@ -153,5 +159,11 @@ WaypointListRenderer::Draw(Canvas &canvas, PixelRect rc,
   row_renderer.DrawSecondRow(canvas, rc, buffer);
 
   // Draw waypoint name
-  row_renderer.DrawFirstRow(canvas, rc, waypoint.name.c_str());
+  if (!waypoint.shortname.empty()) {
+    StaticString<256> waypoint_title;
+    waypoint_title.Format(_("%s (%s)"),waypoint.name.c_str(), waypoint.shortname.c_str());
+    row_renderer.DrawFirstRow(canvas, rc, waypoint_title.c_str());
+  } else {
+    row_renderer.DrawFirstRow(canvas, rc, waypoint.name.c_str());
+  }
 }
