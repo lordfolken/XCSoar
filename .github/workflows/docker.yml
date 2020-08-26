@@ -14,7 +14,6 @@ jobs:
       with:
         image: ${{ github.actor }}/xcsoar-build
         registry: docker.pkg.github.com
-        githubOrg: override-org # optional
         dockerfile: './ide/docker/Dockerfile'
         directory: ./ide/
         username: ${{ github.actor }}
