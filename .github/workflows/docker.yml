@@ -16,5 +16,6 @@ jobs:
         registry: docker.pkg.github.com
         githubOrg: override-org # optional
         dockerfile: './ide/docker/Dockerfile'
+        path: ./ide/
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }} 
