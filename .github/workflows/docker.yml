@@ -3,18 +3,11 @@ on:
   push:
 
 jobs:
- buildandpush:
-   runs-on: ubuntu-latest
-   steps:
-    - uses: actions/checkout@v2
-      name: Check out code
-  
-    - uses: mr-smithers-excellent/docker-build-push@v4
-      name: push image
-      with:
-        image: xcsoar/xcsoar-build
-        registry: docker.pkg.github.com
-        dockerfile: './ide/docker/Dockerfile'
-        directory: ./ide/
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }} 
+ build_with_gpr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - run: docker pull docker.pkg.github.com/$GITHUB_REPOSITORY/xcsoar/xcsoar-build || true
+      - run: docker build . -t xscoar-build --cache-from=docker.pkg.github.com/$GITHUB_REPOSITORY/xcsoar/xcsoar-build
+      - run: docker tag xcsoar-build docker.pkg.github.com/$GITHUB_REPOSITORY/xcsoar && docker push docker.pkg.github.com/$GITHUB_REPOSITORY/xcsoar || true
