@@ -24,6 +24,7 @@ jobs:
       REGISTRY: ghcr.io
       IMAGENAME: xcsoar-build
     steps:
+      - run: echo ${{ secrets.GHRCIO }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       - run: docker run --mount type=bind,source="$(pwd)",target=/opt/xcsoar ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} xcsoar-compile UNIX
 
  xcsoar-compile-android:
@@ -33,6 +34,7 @@ jobs:
       REGISTRY: ghcr.io
       IMAGENAME: xcsoar-build
     steps:
+      - run: echo ${{ secrets.GHRCIO }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       - run: docker run --mount type=bind,source="$(pwd)",target=/opt/xcsoar ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} xcsoar-compile ANDROID
 
  xcsoar-compile-win64:
@@ -42,4 +44,5 @@ jobs:
       REGISTRY: ghcr.io
       IMAGENAME: xcsoar-build
     steps:
+      - run: echo ${{ secrets.GHRCIO }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       - run: docker run --mount type=bind,source="$(pwd)",target=/opt/xcsoar ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} xcsoar-compile WIN64
