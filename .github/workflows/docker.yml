@@ -5,13 +5,17 @@ on:
 jobs:
  compile-xcsoar:
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghrc.io
+      IMAGENAME: xcsoar-build
+      OWNER: lordfolken
     steps:
       - uses: actions/checkout@v2
-      - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
-      - run: docker pull docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build:master-447550a 
-      - run: docker build ./ide/ --file ide/docker/Dockerfile --cache-from=docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build:master-447550a -t docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build 
+      - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login $REGISTRY -u $GITHUB_ACTOR --password-stdin
+      - run: docker pull $REGISTRY/$OWNER/$IMAGENAME || true
+      - run: docker build ./ide/ --file ide/docker/Dockerfile --cache-from=$REGISTRY/$OWNER/$IMAGENAME:master-447550a -t $REGISTRY/$OWNER/$IMAGENAME 
       - run: docker images
-      - run: docker push docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build
-      - run: docker run docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build "xcsoar-compile UNIX"
-      - run: docker run docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build "xcsoar-compile ANDROID"
-      - run: docker run docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build "xcsoar-compile WIN64"
+      - run: docker push $REGISTRY/$OWNER/$IMAGENAME
+      - run: docker run $REGISTRY/$OWNER/$IMAGENAME "xcsoar-compile UNIX"
+      - run: docker run $REGISTRY/$OWNER/$IMAGENAME "xcsoar-compile ANDROID"
+      - run: docker run $REGISTRY/$OWNER/$IMAGENAME "xcsoar-compile WIN64"
