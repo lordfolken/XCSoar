@@ -11,6 +11,8 @@ jobs:
       MOUNT: --mount type=bind,source="$(pwd)",target=/opt/xcsoar
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: True
       - run: echo ${{ secrets.GHRCIO }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       - run: docker pull ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} || true
       - run: docker build ./ide/ --file ide/docker/Dockerfile --cache-from=${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} -t ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} 
