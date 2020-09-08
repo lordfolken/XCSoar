@@ -9,8 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
       - run: docker pull docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build:master-447550a 
-      - run: docker build ./ide/ --file ide/docker/Dockerfile -t xscoar-build --cache-from=docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build:master-447550a
-      - run: docker tag xcsoar-build docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build:latest 
+      - run: docker build ./ide/ --file ide/docker/Dockerfile --cache-from=docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build:master-447550a -t docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build 
       - run: docker push docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build
       - run: docker exec docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build xcsoar-compile UNIX 
       - run: docker exec docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build xcsoar-compile ANDROID 
