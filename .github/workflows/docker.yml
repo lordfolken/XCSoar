@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: echo ${{ secrets.GHRCIO }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       - run: docker pull ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} || true
-      - run: docker build ./ide/ --file ide/docker/Dockerfile --cache-from=${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }}:master-447550a -t ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} 
+      - run: docker build ./ide/ --file ide/docker/Dockerfile --cache-from=${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} -t ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} 
       - run: docker images
       - run: docker push ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }}
       - run: docker run ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} "xcsoar-compile UNIX"
