@@ -8,14 +8,13 @@ jobs:
     env:
       REGISTRY: ghrc.io
       IMAGENAME: xcsoar-build
-      OWNER: lordfolken
     steps:
       - uses: actions/checkout@v2
-      - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login $REGISTRY -u $GITHUB_ACTOR --password-stdin
-      - run: docker pull $REGISTRY/$OWNER/$IMAGENAME || true
-      - run: docker build ./ide/ --file ide/docker/Dockerfile --cache-from=$REGISTRY/$OWNER/$IMAGENAME:master-447550a -t $REGISTRY/$OWNER/$IMAGENAME 
+      - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+      - run: docker pull ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} || true
+      - run: docker build ./ide/ --file ide/docker/Dockerfile --cache-from=${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }}:master-447550a -t ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} 
       - run: docker images
-      - run: docker push $REGISTRY/$OWNER/$IMAGENAME
-      - run: docker run $REGISTRY/$OWNER/$IMAGENAME "xcsoar-compile UNIX"
-      - run: docker run $REGISTRY/$OWNER/$IMAGENAME "xcsoar-compile ANDROID"
-      - run: docker run $REGISTRY/$OWNER/$IMAGENAME "xcsoar-compile WIN64"
+      - run: docker push ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }}
+      - run: docker run ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} "xcsoar-compile UNIX"
+      - run: docker run ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} "xcsoar-compile ANDROID"
+      - run: docker run ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} "xcsoar-compile WIN64"
