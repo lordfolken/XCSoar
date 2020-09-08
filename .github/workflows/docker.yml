@@ -11,6 +11,6 @@ jobs:
       - run: docker pull docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build || true
       - run: docker build ./ide/ --file ide/docker/Dockerfile -t xscoar-build --cache-from=docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build
       - run: docker tag xcsoar-build docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build && docker push docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build || true
-      - run: docker exec docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build xcsoar-compile UNIX 
-      - run: docker exec docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build xcsoar-compile ANDROID 
-      - run: docker exec docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build xcsoar-compile WIN64
+      - run: docker exec docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build:latest xcsoar-compile UNIX 
+      - run: docker exec docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build:latest xcsoar-compile ANDROID 
+      - run: docker exec docker.pkg.github.com/lordfolken/xcsoar/xcsoar-build:latest xcsoar-compile WIN64
