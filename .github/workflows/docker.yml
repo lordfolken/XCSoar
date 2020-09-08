@@ -6,7 +6,7 @@ jobs:
  compile-xcsoar:
     runs-on: ubuntu-latest
     env:
-      REGISTRY: ghrc.io
+      REGISTRY: ghcr.io
       IMAGENAME: xcsoar-build
     steps:
       - uses: actions/checkout@v2
