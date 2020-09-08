@@ -3,12 +3,11 @@ on:
   push:
 
 jobs:
- compile-xcsoar:
+ xcsoar-docker-env:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
       IMAGENAME: xcsoar-build
-      MOUNT: --mount type=bind,source="$(pwd)",target=/opt/xcsoar
     steps:
       - uses: actions/checkout@v2
         with:
@@ -16,8 +15,31 @@ jobs:
       - run: echo ${{ secrets.GHRCIO }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       - run: docker pull ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} || true
       - run: docker build ./ide/ --file ide/docker/Dockerfile --cache-from=${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} -t ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} 
-      - run: docker images
       - run: docker push ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }}
+
+ xcsoar-compile-unix:
+    runs-on: ubuntu-latest
+    needs: xcsoar-docker-env
+    env:
+      REGISTRY: ghcr.io
+      IMAGENAME: xcsoar-build
+    steps:
       - run: docker run --mount type=bind,source="$(pwd)",target=/opt/xcsoar ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} xcsoar-compile UNIX
+
+ xcsoar-compile-android:
+    runs-on: ubuntu-latest
+    needs: xcsoar-docker-env
+    env:
+      REGISTRY: ghcr.io
+      IMAGENAME: xcsoar-build
+    steps:
       - run: docker run --mount type=bind,source="$(pwd)",target=/opt/xcsoar ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} xcsoar-compile ANDROID
+
+ xcsoar-compile-win64:
+    runs-on: ubuntu-latest
+    needs: xcsoar-docker-env
+    env:
+      REGISTRY: ghcr.io
+      IMAGENAME: xcsoar-build
+    steps:
       - run: docker run --mount type=bind,source="$(pwd)",target=/opt/xcsoar ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} xcsoar-compile WIN64
