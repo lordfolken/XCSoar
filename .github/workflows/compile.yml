@@ -67,3 +67,15 @@ jobs:
           submodules: True
       - run: echo ${{ secrets.GHRCIO }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       - run: docker run --mount type=bind,source="$(pwd)",target=/opt/xcsoar -i ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} xcsoar-compile KOBO
+
+ xcsoar-compile-docs:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      IMAGENAME: xcsoar-build
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: True
+      - run: echo ${{ secrets.GHRCIO }} | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+      - run: docker run --mount type=bind,source="$(pwd)",target=/opt/xcsoar -i ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGENAME }} xcsoar-compile DOCS
