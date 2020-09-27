@@ -399,6 +399,7 @@ class NativeView extends SurfaceView
     intent.setAction(Intent.ACTION_VIEW);
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK +
                     Intent.FLAG_RECEIVER_REPLACE_PENDING);
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
     File file = new File(pathName);
 
     try {
@@ -407,6 +408,7 @@ class NativeView extends SurfaceView
       String mimeType = mime.getMimeTypeFromExtension(extension);
 
       intent.setDataAndType(Uri.fromFile(file), mimeType);
+      intent.setDataAndType(FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider", file), mimeType);
       getContext().startActivity(intent);
     } catch (Exception e) {
       Log.e(TAG, "NativeView.openFile('" + pathName + "') error", e);
