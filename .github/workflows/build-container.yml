@@ -21,10 +21,17 @@ jobs:
           registry: docker.pkg.github.com
           username: ${{ github.actor }}
           password: ${{ github.token }}
+      - id: string
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository }}
+      - id: step2
+
+
       - name: build and push
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ghcr.io/${{ github.repository }}/xcsoar-build:latest
+          tags: ghcr.io/${{ steps.string.outputs.lowercase }}/xcsoar-build:latest
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
