@@ -25,6 +25,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: <org-name>/<repo-name>/<app-name>:${{ env.IMAGE_TAG }}
+          tags: $GITHUB_REPOSITORY/xcsoar-build:${{ env.IMAGE_TAG }}
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
