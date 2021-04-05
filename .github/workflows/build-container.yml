@@ -29,6 +29,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
+          file: ./ide/docker/Dockerfile
           tags: ghcr.io/${{ steps.string.outputs.lowercase }}/xcsoar-build:latest
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
