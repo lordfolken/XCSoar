@@ -14,7 +14,7 @@ jobs:
        uses: ASzc/change-string-case-action@v1
        with:
          string: ${{ github.repository }}
-     - id: XCSoar Compile UNIX 
+     - name: XCSoar Compile UNIX 
        uses: addnab/docker-run-action@v3
        with:
          registry: ghcr.io
