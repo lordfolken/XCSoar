@@ -7,7 +7,7 @@ on:
     branches:
       - master
 jobs:
-  docker:
+  compile-xcsoar-unix:
     runs-on: ubuntu-latest
     steps:
      - id: checkout 
