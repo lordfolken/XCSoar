@@ -19,5 +19,6 @@ jobs:
        with:
          image: ghcr.io/${{ steps.repository.outputs.lowercase }}/xcsoar-build:latest
          options: -v ${{ github.workspace }}:/opt/xcsoar
-         run: |
+         run: | 
+           cd /opt/xcsoar
            xcsoar-compile UNIX
