@@ -2,8 +2,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ./ide/docker/
-      - ./ide/provisioning/
+      - './ide/docker/**'
+      - './ide/provisioning/**'
 
 jobs:
  xcsoar-docker-env:
