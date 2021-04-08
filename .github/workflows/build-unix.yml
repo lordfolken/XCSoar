@@ -17,8 +17,7 @@ jobs:
      - name: XCSoar Compile UNIX 
        uses: addnab/docker-run-action@v3
        with:
-         registry: ghcr.io
-         image: ${{ steps.repository.outputs.lowercase }}/xcsoar-build:latest
+         image: ghcr.io/${{ steps.repository.outputs.lowercase }}/xcsoar-build:latest
          options: -v ${{ github.workspace }}:/opt/xcsoar
          run: |
            xcsoar-compile UNIX
