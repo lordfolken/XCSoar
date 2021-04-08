@@ -1,8 +1,12 @@
 #!/bin/bash
 
+# Determine the ammount of cpu cores
 CPUS=$(lscpu -p | tail -n1 | cut -f1 -d,)
 (( CPUS++ ))
 cd /opt/xcsoar || exit 1
+
+# First argument is the TARGET and add all remaning arguments
+# to the end of the line. 
 ARGS=($@)
 TARGET=${ARGS[0]}
 unset ARGS[0]
