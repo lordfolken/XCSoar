@@ -4,6 +4,7 @@ on:
     paths:
       - 'ide/docker/**'
       - 'ide/provisioning/**'
+      - '.github/workflows/build-container.yml'
 
 jobs:
  xcsoar-docker-env:
