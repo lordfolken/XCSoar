@@ -1,5 +1,5 @@
 /*
- Copyright_License {
+Copyright_License {
 
   XCSoar Glide Computer - http://www.xcsoar.org/
   Copyright (C) 2000-2021 The XCSoar Project
@@ -19,30 +19,12 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 }
- */
+*/
 
-#ifndef XCSOAR_TRAFFIC_RENDERER_HPP
-#define XCSOAR_TRAFFIC_RENDERER_HPP
+#include "BufferedLineReader.hpp"
 
-#include "FLARM/Color.hpp"
-
-struct PixelPoint;
-class Canvas;
-struct TrafficLook;
-struct FlarmTraffic;
-struct GliderLinkTraffic;
-class Angle;
-
-namespace TrafficRenderer
+char *
+BufferedLineReader::ReadLine()
 {
-void
-Draw(Canvas &canvas, const TrafficLook &traffic_look,
-     const FlarmTraffic &traffic, Angle angle,
-     FlarmColor color, PixelPoint pt) noexcept;
-
-void
-Draw(Canvas &canvas, const TrafficLook &traffic_look,
-     const GliderLinkTraffic &traffic, Angle angle, PixelPoint pt) noexcept;
+  return buffered.ReadLine();
 }
-
-#endif

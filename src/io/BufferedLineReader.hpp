@@ -21,47 +21,25 @@ Copyright_License {
 }
 */
 
-#ifndef XCSOAR_SCREEN_TEXT_IN_BOX_HPP
-#define XCSOAR_SCREEN_TEXT_IN_BOX_HPP
+#ifndef XCSOAR_IO_BUFFERED_LINE_READER_HPP
+#define XCSOAR_IO_BUFFERED_LINE_READER_HPP
 
-#include "LabelShape.hpp"
+#include "LineReader.hpp"
+#include "BufferedReader.hxx"
 
-#include <tchar.h>
+/**
+ * Adapter between #Reader and #NLineReader.
+ */
+class BufferedLineReader : public NLineReader {
+  BufferedReader buffered;
 
-struct PixelPoint;
-struct PixelSize;
-struct PixelRect;
-class Canvas;
-class LabelBlock;
+public:
+  explicit BufferedLineReader(Reader &reader) noexcept
+    :buffered(reader) {}
 
-struct TextInBoxMode {
-  enum Alignment : uint8_t {
-    LEFT,
-    CENTER,
-    RIGHT,
-  };
-
-  enum VerticalPosition : uint8_t {
-    ABOVE,
-    CENTERED,
-    BELOW,
-  };
-
-  LabelShape shape = LabelShape::SIMPLE;
-  Alignment align = Alignment::LEFT;
-  VerticalPosition vertical_position = VerticalPosition::BELOW;
-  bool move_in_view = false;
+public:
+  /* virtual methods from class NLineReader */
+  char *ReadLine() override;
 };
-
-bool
-TextInBox(Canvas &canvas, const TCHAR *value, PixelPoint p,
-          TextInBoxMode mode, const PixelRect &map_rc,
-          LabelBlock *label_block=nullptr) noexcept;
-
-bool
-TextInBox(Canvas &canvas, const TCHAR *value, PixelPoint p,
-          TextInBoxMode mode,
-          PixelSize screen_size,
-          LabelBlock *label_block=nullptr) noexcept;
 
 #endif

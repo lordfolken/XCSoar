@@ -19,27 +19,37 @@ Copyright_License {
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 }
- */
+*/
 
-#include "LogFile.hpp"
-#include "util/Compiler.h"
+#include "Waypoint/WaypointReaderSeeYou.hpp"
+#include "Waypoint/Factory.hpp"
+#include "Waypoint/Waypoints.hpp"
+#include "io/MemoryReader.hxx"
+#include "io/BufferedLineReader.hpp"
+#include "system/Args.hpp"
+#include "Operation/Operation.hpp"
 
-#include <cassert>
-#include <stdlib.h>
-#include <android/log.h>
+#include <stdio.h>
+#include <tchar.h>
 
-/**
- * Override bionic's assertion failure handler and print the message
- * to the Android log instead of stderr.
- */
-gcc_noreturn
-void
-__assert2(const char *file, int line, const char *func, const char *failedexpr)
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+
+int
+LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-  __android_log_print(ANDROID_LOG_FATAL, "XCSoar",
-                      "assertion \"%s\" failed: file \"%s\", line %d, function \"%s\"",
-                      failedexpr, file, line, func);
+  Waypoints way_points;
 
-  abort();
-  /* unreachable */
+  try {
+    WaypointReaderSeeYou wr{WaypointFactory{WaypointOrigin::NONE}};
+    MemoryReader mr{{(const std::byte *)data, size}};
+    BufferedLineReader lr(mr);
+    NullOperationEnvironment operation;
+    wr.Parse(way_points, lr, operation);
+  } catch (...) {
+    return EXIT_FAILURE;
+  }
+
+  way_points.Optimise();
+
+  return EXIT_SUCCESS;
 }

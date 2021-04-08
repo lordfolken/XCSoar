@@ -21,47 +21,35 @@ Copyright_License {
 }
 */
 
-#ifndef XCSOAR_SCREEN_TEXT_IN_BOX_HPP
-#define XCSOAR_SCREEN_TEXT_IN_BOX_HPP
+#include "Airspace/AirspaceParser.hpp"
+#include "Engine/Airspace/Airspaces.hpp"
+#include "io/MemoryReader.hxx"
+#include "io/BufferedLineReader.hpp"
+#include "system/Args.hpp"
+#include "Operation/Operation.hpp"
 
-#include "LabelShape.hpp"
-
+#include <stdio.h>
 #include <tchar.h>
 
-struct PixelPoint;
-struct PixelSize;
-struct PixelRect;
-class Canvas;
-class LabelBlock;
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
 
-struct TextInBoxMode {
-  enum Alignment : uint8_t {
-    LEFT,
-    CENTER,
-    RIGHT,
-  };
+int
+LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+{
+  Airspaces airspaces;
 
-  enum VerticalPosition : uint8_t {
-    ABOVE,
-    CENTERED,
-    BELOW,
-  };
+  try {
+    MemoryReader mr{{(const std::byte *)data, size}};
+    BufferedLineReader lr(mr);
+    NullOperationEnvironment operation;
 
-  LabelShape shape = LabelShape::SIMPLE;
-  Alignment align = Alignment::LEFT;
-  VerticalPosition vertical_position = VerticalPosition::BELOW;
-  bool move_in_view = false;
-};
+    if (!ParseAirspaceFile(airspaces, lr, operation))
+      return EXIT_FAILURE;
+  } catch (...) {
+    return EXIT_FAILURE;
+  }
 
-bool
-TextInBox(Canvas &canvas, const TCHAR *value, PixelPoint p,
-          TextInBoxMode mode, const PixelRect &map_rc,
-          LabelBlock *label_block=nullptr) noexcept;
+  airspaces.Optimise();
 
-bool
-TextInBox(Canvas &canvas, const TCHAR *value, PixelPoint p,
-          TextInBoxMode mode,
-          PixelSize screen_size,
-          LabelBlock *label_block=nullptr) noexcept;
-
-#endif
+  return EXIT_SUCCESS;
+}
