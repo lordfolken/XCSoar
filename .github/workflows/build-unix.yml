@@ -6,14 +6,19 @@ on:
   pull_request:
     branches:
       - master
-  workflow_run:
-    workflows: ["xcsoar-docker-envs"]
-    types:
-      - completed
 jobs:
   compile-xcsoar-unix:
     runs-on: ubuntu-latest
     steps:
+     - name: Wait for xcsoar-docker-env to be built
+        uses: fountainhead/action-wait-for-check@v1.0.0
+        id: wait-for-build
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: xcsoar-docker-env
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          intervalSeconds: 10
+          timeoutSeconds: 2000
      - id: checkout 
        uses: actions/checkout@v2
        with:
