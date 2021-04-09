@@ -16,18 +16,18 @@ This Docker Image when built, will compile XCSoar for several targets in a clean
 
 The container itself is readonly. The build results will appear in `./output/`.
 
+To run the container interactivly:
+```
+docker run \
+    --mount type=bind,source="$(pwd)",target=/opt/xcsoar \
+    -it ghcr.io/xcsoar/xcsoar-build:latest /bin/bash
+```
+
 To build the container:
 ```
 docker build \
     --file ide/docker/Dockerfile \
     -t xcsoar/xcsoar-build:latest ./ide/
-```
-
-To run the container interactivly:
-```
-docker run \
-    --mount type=bind,source="$(pwd)",target=/opt/xcsoar \
-    -it xcsoar/xcsoar-build:latest /bin/bash
 ```
 
 To run the ANDROID build:
