@@ -6,6 +6,10 @@ on:
   pull_request:
     branches:
       - master
+  workflow_run:
+    workflows: ["xcsoar-docker-envs"]
+    types:
+      - completed
 jobs:
   compile-xcsoar-unix:
     runs-on: ubuntu-latest
