@@ -1,0 +1,32 @@
+on:
+  workflow_dispatch:  
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  compile-xcsoar-unix:
+    runs-on: ubuntu-latest
+    steps:
+     - id: checkout 
+       uses: actions/checkout@v2
+       with:
+         submodules: True
+     - id: cache-ccache
+       uses: hendrikmuhs/ccache-action@v1
+       with:
+         key: ${{ matrix.os }}-${{ matrix.type }}
+     - id: repository
+       uses: ASzc/change-string-case-action@v1
+       with:
+         string: ${{ github.repository }}
+     - name: XCSoar Compile UNIX 
+       uses: addnab/docker-run-action@v3
+       with:
+         image: ghcr.io/${{ steps.repository.outputs.lowercase }}/xcsoar-build:latest
+         options: -v ${{ github.workspace }}:/opt/xcsoar -v .ccache:/root/.ccache
+         run: | 
+           cd /opt/xcsoar
+           xcsoar-compile UNIX USE_CCACHE=y
