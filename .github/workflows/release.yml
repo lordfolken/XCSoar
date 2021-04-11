@@ -16,7 +16,7 @@ jobs:
         run: |
           TAG=$(echo ${{ github.ref }} | cut -f3 -d '/') 
           echo 'CHANGELOGENTRY<<EOF' >> $GITHUB_ENV
-          echo CHANGELOGENTRY="$(./tools/changelog.sh $TAG)" >> $GITHUB_ENV
+          ./tools/changelog.sh $TAG >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
         id: changelogentry
       - name: Create release
