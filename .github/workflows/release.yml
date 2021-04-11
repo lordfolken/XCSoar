@@ -13,7 +13,7 @@ jobs:
         with:
           submodules: True
       - name: parse changelog
-        run: echo CHANGELOGENTRY=$(./tools/changelog.sh ${{ github.ref }}) >> $GITHUB_ENV 
+        run: echo CHANGELOGENTRY="$(./tools/changelog.sh ${{ github.ref }})" >> $GITHUB_ENV
         id: changelogentry
       - name: Create release
         id: create_release
