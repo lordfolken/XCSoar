@@ -1,4 +1,8 @@
 Version 7.5 - not yet released
+* foo
+   - bar
+* blubb
+   - test
 
 Version 7.4 - 2021/04/08
 * user interface
