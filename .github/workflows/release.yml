@@ -10,8 +10,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-          with:
-            submodules: True
+        with:
+          submodules: True
       - name: parse changelog
         run: echo CHANGELOGENTRY=$(./tools/changelog.sh ${{ github.ref }}) >> $GITHUB_ENV 
         id: changelogentry
