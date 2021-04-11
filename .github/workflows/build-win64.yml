@@ -32,11 +32,25 @@ jobs:
          run: | 
            cd /opt/xcsoar
            xcsoar-compile ${{ env.TARGET }} USE_CCACHE=y V=2 everything
-     - name: XCSoar run checks
-       uses: addnab/docker-run-action@v3
+     - name: store checks and compile artefacts
+       uses: actions/upload-artifact@v2
        with:
-         image: ghcr.io/${{ steps.repository.outputs.lowercase }}/xcsoar-build:latest
-         options: -v ${{ github.workspace }}:/opt/xcsoar -v /home/runner/work/XCSoar/XCSoar/.ccache:/root/.ccache
-         run: | 
-           cd /opt/xcsoar
-           xcsoar-compile ${{ env.TARGET }} V=2 check
+         name: xcsoar-${{ env.TARGET }}-artifact
+         path: |
+           ${{ github.workspace }}/output/${{ env.TARGET }}
+  xcsoar-run-checks-${{ env.TARGET }}:
+     runs-on: windows-latest
+     steps:
+     - id: checkout 
+       uses: actions/checkout@v2
+       with:
+         submodules: True
+     - name: fetch artifacts
+       uses: actions/download-artifact@v2
+       with:
+         name: xcsoar-${{ env.TARGET }}-artifact
+         path: ${{ github.workspace }}/output/${{ env.TARGET }}
+     - name: XCSoar run checks on ${{ env.TARGET }} 
+       run: make check
+       working-directory: ${{ github.workspace }}
+
