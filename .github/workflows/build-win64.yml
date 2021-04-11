@@ -38,7 +38,7 @@ jobs:
          name: xcsoar-${{ env.TARGET }}-artifact
          path: |
            ${{ github.workspace }}/output/${{ env.TARGET }}
-  xcsoar-run-checks-${{ env.TARGET }}:
+  xcsoar-run-checks-win64:
      runs-on: windows-latest
      steps:
      - id: checkout 
