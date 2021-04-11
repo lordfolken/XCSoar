@@ -29,4 +29,12 @@ jobs:
          options: -v ${{ github.workspace }}:/opt/xcsoar -v /home/runner/.ccache:/root/.ccache
          run: | 
            cd /opt/xcsoar
-           xcsoar-compile UNIX USE_CCACHE=y
+           xcsoar-compile UNIX USE_CCACHE=y V=2 everything
+     - name: XCSoar run checks
+       uses: addnab/docker-run-action@v3
+       with:
+         image: ghcr.io/${{ steps.repository.outputs.lowercase }}/xcsoar-build:latest
+         options: -v ${{ github.workspace }}:/opt/xcsoar -v /home/runner/.ccache:/root/.ccache
+         run: | 
+           cd /opt/xcsoar
+           xcsoar-compile UNIX V=2 check
