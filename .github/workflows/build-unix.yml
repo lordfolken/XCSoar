@@ -6,6 +6,8 @@ on:
   pull_request:
     branches:
       - master
+env:
+  TARGET: UNIX
 jobs:
   compile-xcsoar-unix:
     runs-on: ubuntu-latest
@@ -17,19 +19,19 @@ jobs:
      - id: cache-ccache
        uses: hendrikmuhs/ccache-action@v1
        with:
-         key: ${{ matrix.os }}-${{ matrix.type }}
+         key: ${{ matrix.os }}-${{ matrix.type }}-${{ TARGET }}
      - id: repository
        uses: ASzc/change-string-case-action@v1
        with:
          string: ${{ github.repository }}
-     - name: XCSoar Compile UNIX 
+     - name: XCSoar Compile ${{ TARGET }} 
        uses: addnab/docker-run-action@v3
        with:
          image: ghcr.io/${{ steps.repository.outputs.lowercase }}/xcsoar-build:latest
          options: -v ${{ github.workspace }}:/opt/xcsoar -v /home/runner/work/XCSoar/XCSoar/.ccache:/root/.ccache
          run: | 
            cd /opt/xcsoar
-           xcsoar-compile UNIX USE_CCACHE=y V=2 everything
+           xcsoar-compile ${{ TARGET }} USE_CCACHE=y V=2 everything
      - name: XCSoar run checks
        uses: addnab/docker-run-action@v3
        with:
@@ -37,4 +39,4 @@ jobs:
          options: -v ${{ github.workspace }}:/opt/xcsoar -v /home/runner/work/XCSoar/XCSoar/.ccache:/root/.ccache
          run: | 
            cd /opt/xcsoar
-           xcsoar-compile UNIX V=2 check
+           xcsoar-compile ${{ TARGET }} V=2 check
