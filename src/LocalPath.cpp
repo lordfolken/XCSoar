@@ -89,7 +89,10 @@ Path
 GetPrimaryDataPath()
 {
   assert(!data_path.IsNull());
-
+      __android_log_print(ANDROID_LOG_DEBUG, "XCSoar",
+                          "GetPrimaryDataPath='%s'",
+                          data_path.c_str());
+ 
   return data_path;
 }
 
@@ -98,7 +101,9 @@ SetPrimaryDataPath(Path path)
 {
   assert(!path.IsNull());
   assert(!path.IsEmpty());
-
+      __android_log_print(ANDROID_LOG_DEBUG, "XCSoar",
+                          "PrimaryDataPath='%s'",
+                          path.c_str());
   data_path = path;
 }
 
@@ -107,7 +112,9 @@ LocalPath(Path file)
 {
   assert(!data_path.IsNull());
   assert(!file.IsNull());
-
+      __android_log_print(ANDROID_LOG_DEBUG, "XCSoar",
+                          "PrimaryDataPath='%s' and '%s'",
+                          data_path.c_str(), file.c_str());
   return AllocatedPath::Build(data_path, file);
 }
 
@@ -358,6 +365,14 @@ FindDataPath()
       return Path(ANDROID_SAMSUNG_EXTERNAL_SD "/" XCSDATADIR);
     }
 
+    if (auto path = Environment::getExternalFilesDir(); path != nullptr) {
+      __android_log_print(ANDROID_LOG_DEBUG, "XCSoar",
+                          "Environment.getExternalFilesDir()='%s'",
+                          path.c_str());
+
+      return path;
+    }
+         
     /* try Context.getExternalStoragePublicDirectory() */
     if (auto path = Environment::getExternalStoragePublicDirectory("XCSoarData");
         path != nullptr) {
@@ -450,8 +465,12 @@ InitialiseDataPath()
      these symlinks; to avoid problems with this restriction, all
      symlinks on the way must be resolved by RealPath(): */
   auto rp = RealPath(data_path);
-  if (rp != nullptr)
-    data_path = std::move(rp);
+      __android_log_print(ANDROID_LOG_DEBUG, "XCSoar",
+                          "realpath='%s' datapath: '%s'",
+                          rp.c_str(), data_path.c_str());
+/*  if (rp != nullptr)
+      data_path = std::move(rp); */
+ 
 #endif
 
   return true;

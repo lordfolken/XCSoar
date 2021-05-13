@@ -42,6 +42,9 @@ AllocatedPath getExternalStorageDirectory() noexcept;
 
 AllocatedPath getExternalStoragePublicDirectory(const char *type) noexcept;
 
+// Get App file directory
+AllocatedPath getExternalFilesDir() noexcept;
+
 } // namespace Environment
 
 #endif

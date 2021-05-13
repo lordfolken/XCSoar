@@ -21,7 +21,9 @@ Copyright_License {
 }
 */
 
+#include "Main.hpp"
 #include "Environment.hpp"
+#include "Context.hpp"
 #include "java/Class.hxx"
 #include "java/String.hxx"
 #include "java/File.hxx"
@@ -30,8 +32,10 @@ Copyright_License {
 
 namespace Environment {
 static Java::TrivialClass cls;
+static Java::TrivialClass cls_native;
 static jmethodID getExternalStorageDirectory_method;
 static jmethodID getExternalStoragePublicDirectory_method;
+static jmethodID getExternalFilesDir_method;
 } // namespace Environment
 
 void
@@ -49,6 +53,9 @@ Environment::Initialise(JNIEnv *env)
   if (getExternalStoragePublicDirectory_method == nullptr)
     /* needs API level 8 */
     env->ExceptionClear();
+  
+  cls_native.Find(env, "android/content/Context");
+  getExternalFilesDir_method =  env->GetMethodID(cls_native, "getExternalFilesDir","(Ljava/lang/String;)Ljava/io/File;");
 }
 
 void
@@ -96,3 +103,22 @@ Environment::getExternalStoragePublicDirectory(const char *type) noexcept
   JNIEnv *env = Java::GetEnv();
   return Java::ToPathChecked(::getExternalStoragePublicDirectory(env, type));
 }
+static Java::String
+getExternalFilesDir(JNIEnv *env)
+{
+  Java::File file{
+    env,
+    env->CallObjectMethod(context->Get(),
+                                Environment::getExternalFilesDir_method,nullptr),
+  };
+
+  return file.GetAbsolutePathChecked();
+}
+
+AllocatedPath
+Environment::getExternalFilesDir() noexcept
+{
+  JNIEnv *env = Java::GetEnv();
+  return Java::ToPathChecked(::getExternalFilesDir(env));
+}
+
