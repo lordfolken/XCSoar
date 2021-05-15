@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/HelloIOIO/HelloIOIO.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/HelloIOIO/HelloIOIO.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/pc/HelloIOIOConsole/HelloIOIOConsole.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/pc/HelloIOIOConsole/HelloIOIOConsole.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/HelloIOIOPower/HelloIOIOPower.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/HelloIOIOPower/HelloIOIOPower.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/HelloIOIOService/HelloIOIOService.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/HelloIOIOService/HelloIOIOService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/pc/HelloIOIOSwing/HelloIOIOSwing.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/pc/HelloIOIOSwing/HelloIOIOSwing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/pc/HelloSequencer/HelloSequencer.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/pc/HelloSequencer/HelloSequencer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/HolidayIOIO/HolidayIOIO.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/HolidayIOIO/HolidayIOIO.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIOBluetoothBridge/IOIOBluetoothBridge.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIOBluetoothBridge/IOIOBluetoothBridge.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIOBridge/IOIOBridge.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIOBridge/IOIOBridge.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/IOIOConnectionTester/IOIOConnectionTester.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/IOIOConnectionTester/IOIOConnectionTester.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/IOIODigitalLatency/IOIODigitalLatency.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/IOIODigitalLatency/IOIODigitalLatency.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIODude/IOIODude.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIODude/IOIODude.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/IOIOHackathonApp/IOIOHackathonApp.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/IOIOHackathonApp/IOIOHackathonApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIOLib/IOIOLib.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIOLib/IOIOLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIOLibAccessory/IOIOLibAccessory.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIOLibAccessory/IOIOLibAccessory.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIOLibAndroidDevice/IOIOLibAndroidDevice.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIOLibAndroidDevice/IOIOLibAndroidDevice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIOLibBT/IOIOLibBT.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIOLibBT/IOIOLibBT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIOLibTest/IOIOLibTest.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIOLibTest/IOIOLibTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/IOIOManager/IOIOManager.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/IOIOManager/IOIOManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIOManagerBT/IOIOManagerBT.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIOManagerBT/IOIOManagerBT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/pc/IOIOServoSwing/IOIOServoSwing.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/pc/IOIOServoSwing/IOIOServoSwing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/IOIOSimpleApp/IOIOSimpleApp.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/IOIOSimpleApp/IOIOSimpleApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/IOIOTestBed/IOIOTestBed.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/IOIOTestBed/IOIOTestBed.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/IOIOTortureTest/IOIOTortureTest.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/IOIOTortureTest/IOIOTortureTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/IOIOVisualCharger/IOIOVisualCharger.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/IOIOVisualCharger/IOIOVisualCharger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/pc/SeeedTestbed/SeeedTestbed.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/pc/SeeedTestbed/SeeedTestbed.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/ShoeBot/ShoeBot.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/ShoeBot/ShoeBot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIOLib/target/android/android.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIOLib/target/android/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/android1.iml" filepath="$PROJECT_DIR$/android/android1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/IOIOConnectionTester/target/android/android2.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/IOIOConnectionTester/target/android/android2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/output/src/proj-5.1.0/jniwrap/org.osgeo.proj/org.osgeo.proj.iml" filepath="$PROJECT_DIR$/output/src/proj-5.1.0/jniwrap/org.osgeo.proj/org.osgeo.proj.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/IOIOLib/target/pc/pc.iml" filepath="$PROJECT_DIR$/android/ioio/software/IOIOLib/target/pc/pc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ioio/software/applications/IOIOConnectionTester/target/pc/pc1.iml" filepath="$PROJECT_DIR$/android/ioio/software/applications/IOIOConnectionTester/target/pc/pc1.iml" />
+    </modules>
+  </component>
+</project>

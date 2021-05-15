@@ -1,0 +1,27 @@
+<component name="libraryTable">
+  <library name="bootloader">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0310-App-IOIO0330.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0306-App-IOIO0326.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0302-App-IOIO0322.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0304-App-IOIO0324.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0303-App-IOIO0323.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0305-App-IOIO0325.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0311.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0311-App-IOIO0400.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0303.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0301.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0305.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0100.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0310.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0300.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0306.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0302.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0304.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0300-App-IOIO0310.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/bootloader/Boot-IOIO0301-App-IOIO0311.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

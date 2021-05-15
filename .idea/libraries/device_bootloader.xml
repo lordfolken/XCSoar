@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="device-bootloader">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/device-bootloader/DevBoot-IOIO0401-App-IOIO0500.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/device-bootloader/DevBoot-IOIO0400-App-IOIO0330.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/device-bootloader/DevBoot-IOIO0400-App-IOIO0400.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/device-bootloader/DevBoot-IOIO0400.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/firmware/device-bootloader/DevBoot-IOIO0401.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

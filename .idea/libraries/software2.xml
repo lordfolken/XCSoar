@@ -1,0 +1,28 @@
+<component name="libraryTable">
+  <library name="software">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0503.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0301.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0500.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0310.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0501.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0321.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0200.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0323.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0330.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0324.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0504.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0300.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0101.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0311.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0326.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0302.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0502.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0322.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-PCBETA1.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/software/App-IOIO0400.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

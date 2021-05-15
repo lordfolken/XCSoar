@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="apps">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/apps/IOIODude-0100.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/apps/IOIODude-0101.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/apps/IOIOBridge-0100.zip!/" />
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/apps/IOIOBridge-0101.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

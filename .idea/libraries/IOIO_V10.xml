@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="IOIO-V10">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/android/ioio/release/IOIO-V10.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

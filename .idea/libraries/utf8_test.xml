@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="utf8-test">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/output/src/boost_1_72_0/tools/boostdep/test/utf8-test.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
