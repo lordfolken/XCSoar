@@ -1,3 +1,7 @@
+Version 7.15 - foobar
+* test
+ - blubb
+
 Version 7.9 - not yet released
 * fix crash bug in terrain renderer
 * fix crash bug in IGC file parser
