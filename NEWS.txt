@@ -1,4 +1,4 @@
-Version 7.15 - foobar
+Version 7.16 - foobar
 * test
  - blubb
 
