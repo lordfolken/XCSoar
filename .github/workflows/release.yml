@@ -33,7 +33,7 @@ jobs:
     steps:
       - name: find version
         run: |
-          TAG=$(echo ${{ github.ref }} | cut -f3 -d '/') 
+          echo ${{ github.ref }} | cut -f3 -d '/' >> $GITHUB_ENV
       - name: Tweet
         id: tweet
         uses: snow-actions/tweet@v1.1.0
@@ -44,4 +44,4 @@ jobs:
           ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
         with:
           status: |
-            XCSoar ${TAG} released: ${{ github.server_url }}/${{ github.repository }}/releases/${TAG}
+            XCSoar ${{ env.TAG }} released: ${{ github.server_url }}/${{ github.repository }}/releases/${{ env.TAG }}
