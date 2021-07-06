@@ -33,7 +33,7 @@ jobs:
     steps:
       - name: find version
         run: |
-          echo ${{ github.ref }} | cut -f3 -d '/' >> $GITHUB_ENV
+          echo "TAG=$(echo ${{ github.ref }} | cut -f3 -d '/')" >> $GITHUB_ENV
       - name: Tweet
         id: tweet
         uses: snow-actions/tweet@v1.1.0

@@ -1,3 +1,7 @@
+Version 7.23 - blubb
+* release test
+  - tweeting
+
 Version 7.22 - blubb
 * release test
   - tweeting
