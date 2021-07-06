@@ -28,9 +28,9 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Version ${{ github.ref }}
           body: ${{ env.CHANGELOGENTRY }}
-    tweet:
-      runs-on: ubuntu-latest
-      steps:
+  tweet:
+    runs-on: ubuntu-latest
+    steps:
       - name: Tweet
         id: tweet
         uses: snow-actions/tweet@v1.1.0
