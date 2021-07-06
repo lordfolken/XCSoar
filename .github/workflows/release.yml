@@ -41,4 +41,4 @@ jobs:
           ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
         with:
           status: |
-            XCSoar ${{ github.ref }} released: ${{ GITHUB_SERVER_URL }}/${{ GITHUB_REPOSITORY}}/releases/${{ github.ref }}
+            XCSoar ${{ github.ref }} released: ${{ github.server_url }}/${{ github.repository }}/releases/${{ github.ref }}
