@@ -40,7 +40,7 @@ jobs:
          run: | 
            cd /opt/xcsoar
            xcsoar-compile ${{ env.TARGET }} USE_CCACHE=y V=2 everything
-     - name: upload artifact
-       uses: actions/upload-artifact@v2 
-         name: xcsoar.apk
-         path: ./output/ANDROID/xcsoar.apk
+     - uses: actions/upload-artifact@v2 
+       with:
+         name: XCSoar-debug.apk
+         path: ${{ github.workspace }}/output/ANDROID/bin/XCSoar-debug.apk 
