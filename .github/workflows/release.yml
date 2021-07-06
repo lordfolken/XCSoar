@@ -31,6 +31,9 @@ jobs:
   tweet:
     runs-on: ubuntu-latest
     steps:
+      - name: find version
+        run: |
+          TAG=$(echo ${{ github.ref }} | cut -f3 -d '/') 
       - name: Tweet
         id: tweet
         uses: snow-actions/tweet@v1.1.0
@@ -41,4 +44,4 @@ jobs:
           ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
         with:
           status: |
-            XCSoar ${{ github.ref }} released: ${{ github.server_url }}/${{ github.repository }}/releases/${{ github.ref }}
+            XCSoar ${TAG} released: ${{ github.server_url }}/${{ github.repository }}/releases/${TAG}
