@@ -143,6 +143,7 @@ FileOutputStream::Commit()
 	assert(IsDefined());
 
 	Close();
+	fsync();
 }
 
 #else
