@@ -9,7 +9,7 @@ TARGET=${ARGS[0]}
 unset "ARGS[0]"
 
 case "${TARGET}" in
-      ANDROID)
+      "ANDROID")
         make TARGET=ANDROIDFAT -j "${CPUS}" ${ARGS[@]}
       ;;
       "DOCS")
@@ -37,7 +37,7 @@ case "${TARGET}" in
         ls ../
       ;;
       *)
-        echo "No target specified. Valid targets: ANDROID DOCS KOBO UNIX UNIX-SDL PC WIN64"
+        echo "No target specified. Valid targets: ANDROID DOCS KOBO UNIX UNIX-SDL PC WIN64 UNIX-DEBIAN"
         exit 1
       ;;
 esac
