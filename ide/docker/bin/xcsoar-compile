@@ -2,15 +2,20 @@
 
 CPUS=$(lscpu -p | tail -n1 | cut -f1 -d,)
 (( CPUS++ ))
-cd /opt/xcsoar || exit 1
+cd /opt/xcsoar/XCSoar || exit 1
 
+BUILDOPTS=''
 ARGS=($@)
 TARGET=${ARGS[0]}
 unset "ARGS[0]"
 
+if [ -d /opt/xcsoar/.cache/ccache ]; then
+  BUILDOPTS="USE_CCACHE=y"
+fi
+
 case "${TARGET}" in
       ANDROID)
-        make TARGET=ANDROIDFAT -j "${CPUS}" ${ARGS[@]}
+        make TARGET=ANDROIDFAT -j "${CPUS}" "${BUILDOPTS}" ${ARGS[@]}
       ;;
       "DOCS")
         make manual -j "${CPUS}" ${ARGS[@]}
@@ -18,22 +23,22 @@ case "${TARGET}" in
       "KOBO")
         make TARGET="${TARGET}" -j"${CPUS}" libs
         make TARGET="${TARGET}" -j"${CPUS}"  ${ARGS[@]}
-        make TARGET="${TARGET}" -j"${CPUS}" output/KOBO/KoboRoot.tgz
+        make TARGET="${TARGET}" -j"${CPUS}" "${BUILDOPTS}" output/KOBO/KoboRoot.tgz
       ;;
       "UNIX")
-        make TARGET="${TARGET}" -j"${CPUS}" ${ARGS[@]}
+        make TARGET="${TARGET}" -j"${CPUS}" "${BUILDOPTS}" ${ARGS[@]}
       ;;
       "UNIX-SDL")
-        make TARGET="UNIX" -j"${CPUS}" OPENGL=n ENABLE_SDL=y USE_SDL2=y ${ARGS[@]}
+        make TARGET="UNIX" -j"${CPUS}" OPENGL=n ENABLE_SDL=y USE_SDL2=y "${BUILDOPTS}" ${ARGS[@]}
       ;;
       "PC")
-        make TARGET="${TARGET}" -j"${CPUS}" ${ARGS[@]}
+        make TARGET="${TARGET}" -j"${CPUS}" "${BUILDOPTS}" ${ARGS[@]}
       ;;
       "WIN64")
-        make TARGET="${TARGET}" -j"${CPUS}" ${ARGS[@]}
+        make TARGET="${TARGET}" -j"${CPUS}" "${BUILDOPTS}" ${ARGS[@]}
       ;;
       "UNIX-DEBIAN")
-        dpkg-buildpackage -uc -us -j"${CPUS}" ${ARGS[@]}
+        dpkg-buildpackage -uc -us -j"${CPUS}" "${BUILDOPTS}" ${ARGS[@]}
         ls ../
       ;;
       *)

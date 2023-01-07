@@ -1,6 +1,7 @@
-# XCSoar Docker Image
+# XCSoar Container Image
 
-This Docker Image when built, will compile XCSoar for several targets in a clean room environment.
+This container image when built, will compile XCSoar for several targets in a
+clean room environment.
 
 ## Currently Supported Targets
 
@@ -14,43 +15,43 @@ Targets:
 
 ## Instructions
 
-The container itself is readonly. The build results will appear in `./output/`.
+The container itself is readonly. The build results will appear in
+`./XCSoar/output/<platform>`.
 
-To run the container interactivly:
+To run the prebuilt container interactivly:
 ```bash
-docker run \
-    --mount type=bind,source="$(pwd)",target=/opt/xcsoar \
-    -it ghcr.io/xcsoar/xcsoar/xcsoar-build:latest /bin/bash
+podman run --userns=keep-id \
+    --mount type=bind,source="$(pwd)",target=/opt/xcsoar/XCSoar \
+    --volume xcsoar-cache:/opt/xcsoar/.cache/ccache \
+    -it ghcr.io/xcsoar/xcsoar/xcsoar-build:latest
 ```
 
 To run the ANDROID build:
 ```bash
-docker run \
-    --mount type=bind,source="$(pwd)",target=/opt/xcsoar \
+podman run --userns=keep-id \
+    --mount type=bind,source="$(pwd)",target=/opt/xcsoar/XCSoar \
+    --volume xcsoar-cache:/opt/xcsoar/.cache/ccache \
     -it ghcr.io/xcsoar/xcsoar/xcsoar-build:latest xcsoar-compile ANDROID
 ```
 
 To build the container:
 ```bash
-docker build \
+podman build \
     --file ide/docker/Dockerfile \
     -t xcsoar/xcsoar-build:latest ./ide/
 ```
 
 ### Running XCSoar as a GUI application from the container
 
-Sometimes your runtime environment diverges too far from the build environment to be able to execute the binary natively.
-In this case you can start XCSoar inside the container and let it be displayed on your X11 Server:
+Sometimes your runtime environment diverges too far from the build environment
+to be able to execute the binary natively.  In this case you can start XCSoar
+inside the container and let it be displayed on your X11 Server:
+
 ```bash
-docker run \
-    --mount type=bind,source="$(pwd)",target=/opt/xcsoar \
+podman run --userns=keep-id \
+    --mount type=bind,source="$(pwd)",target=/opt/xcsoar/XCSoar \
     --volume="$HOME/.Xauthority:/root/.Xauthority:rw" \
-    -v $HOME/.xcsoar/:/root/.xcsoar \
+    --volume="$HOME/.xcsoar/:/opt/xcsoar/.xcsoar" \
     --env="DISPLAY" --net=host \
-    -it ghcr.io/xcsoar/xcsoar/xcsoar-build:latest /bin/bash
-```
-Compile and run the binary (UNIX-SDL target):
-```bash
-xcsoar-compile UNIX-SDL
-./output/UNIX/bin/xcsoar
+    -it localhost/xcsoar/xcsoar-build:latest ./XCSoar/output/UNIX/bin/xcsoar
 ```

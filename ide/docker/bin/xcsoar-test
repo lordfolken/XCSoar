@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
 
-cd /opt/xcsoar 
+cd /opt/xcsoar/XCSoar
 make TARGET=UNIX check
