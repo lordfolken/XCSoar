@@ -12,3 +12,4 @@ RUN /root/install-android-tools.sh && apt-get clean
 COPY ./docker/bin/xcsoar-compile ./docker/bin/xcsoar-test /usr/local/bin/
 
 WORKDIR /opt/xcsoar
+COPY ./docker/README.md /opt/xcsoar/
