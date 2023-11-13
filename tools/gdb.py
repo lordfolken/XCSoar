@@ -62,7 +62,7 @@ class AngleRangePrinter:
     def to_string(self):
         start = AnglePrinter(self.value['start']).to_string()
         end = AnglePrinter(self.value['end']).to_string()
-        return 'AngleRange(%s..%s)' % (start, end)
+        return f'AngleRange({start}..{end})'
 
 class GeoPointPrinter:
     def __init__(self, value):
@@ -74,7 +74,7 @@ class GeoPointPrinter:
 
         longitude = AnglePrinter(self.value['longitude']).to_string()
         latitude = AnglePrinter(self.value['latitude']).to_string()
-        return 'GeoPoint(%s %s)' % (longitude, latitude)
+        return f'GeoPoint({longitude} {latitude})'
 
 class GeoBoundsPrinter:
     def __init__(self, value):
@@ -88,7 +88,7 @@ class GeoBoundsPrinter:
         east = AnglePrinter(self.value['longitude']['end']).to_string()
         south = AnglePrinter(self.value['latitude']['start']).to_string()
         north = AnglePrinter(self.value['latitude']['end']).to_string()
-        return 'GeoBounds([%s .. %s] [%s .. %s])' % (west, east, south, north)
+        return f'GeoBounds([{west} .. {east}] [{south} .. {north}])'
 
 class GeoVectorPrinter:
     def __init__(self, value):
@@ -100,7 +100,7 @@ class GeoVectorPrinter:
         if distance < 0:
             return 'GeoVector::INVALID'
 
-        return 'GeoVector(%s %s)' % (bearing, distance)
+        return f'GeoVector({bearing} {distance})'
 
 class SpeedVectorPrinter:
     def __init__(self, value):
@@ -111,10 +111,7 @@ class SpeedVectorPrinter:
         norm = fixed_value(self.value['norm'])
         if norm < 0:
             return 'GeoVector::INVALID'
-        if norm == 0:
-            return 'GeoVector::ZERO'
-
-        return 'SpeedVector(%s %s)' % (bearing, norm)
+        return 'GeoVector::ZERO' if norm == 0 else f'SpeedVector({bearing} {norm})'
 
 class FlatGeoPointPrinter:
     def __init__(self, value):
@@ -200,17 +197,9 @@ class RoughTimeSpanPrinter:
         if start == 0xffff and end == 0xffff:
             return 'RoughTimeSpan::INVALID'
 
-        if start == 0xffff:
-            start = ''
-        else:
-            start = '%02u:%02u' % (start / 60, start % 60)
-
-        if end == 0xffff:
-            end = ''
-        else:
-            end = '%02u:%02u' % (end / 60, end % 60)
-
-        return 'RoughTimeSpan(%s..%s)' % (start, end)
+        start = '' if start == 0xffff else '%02u:%02u' % (start / 60, start % 60)
+        end = '' if end == 0xffff else '%02u:%02u' % (end / 60, end % 60)
+        return f'RoughTimeSpan({start}..{end})'
 
 def lookup_function(value):
     type = value.type
@@ -220,7 +209,7 @@ def lookup_function(value):
 
     type = type.unqualified().strip_typedefs()
     typename = type.tag
-    if typename == None:
+    if typename is None:
         return None
 
     if typename == 'fixed':
@@ -253,7 +242,7 @@ def lookup_function(value):
         return RoughTimePrinter(value)
     elif typename == 'RoughTimeSpan':
         return RoughTimeSpanPrinter(value)
-    elif typename[:12] == 'StaticString' or typename[:12] == 'NarrowString':
+    elif typename[:12] in ['StaticString', 'NarrowString']:
         return StaticStringPrinter(value)
 
     return None

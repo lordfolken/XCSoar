@@ -55,29 +55,29 @@ class AutotoolsProject(MakeProject):
 
         configure = [
             os.path.join(src, 'configure'),
-            'CC=' + toolchain.cc,
-            'CXX=' + toolchain.cxx,
-            'CFLAGS=' + toolchain.cflags,
-            'CXXFLAGS=' + toolchain.cxxflags,
-            'CPPFLAGS=' + cppflags + ' ' + self.cppflags,
-            'LDFLAGS=' + toolchain.ldflags + ' ' + self.ldflags,
-            'LIBS=' + toolchain.libs + ' ' + self.libs,
-            'AR=' + toolchain.ar,
-            'ARFLAGS=' + toolchain.arflags,
-            'RANLIB=' + toolchain.ranlib,
-            'STRIP=' + toolchain.strip,
-            '--prefix=' + install_prefix,
+            f'CC={toolchain.cc}',
+            f'CXX={toolchain.cxx}',
+            f'CFLAGS={toolchain.cflags}',
+            f'CXXFLAGS={toolchain.cxxflags}',
+            f'CPPFLAGS={cppflags} {self.cppflags}',
+            f'LDFLAGS={toolchain.ldflags} {self.ldflags}',
+            f'LIBS={toolchain.libs} {self.libs}',
+            f'AR={toolchain.ar}',
+            f'ARFLAGS={toolchain.arflags}',
+            f'RANLIB={toolchain.ranlib}',
+            f'STRIP={toolchain.strip}',
+            f'--prefix={install_prefix}',
             '--disable-silent-rules',
         ]
 
         arch = toolchain.actual_arch if self.use_actual_arch else toolchain.toolchain_arch
         if arch is not None:
-            configure.append('--host=' + arch)
+            configure.append(f'--host={arch}')
 
         if target_toolchain is not None:
             arch = target_toolchain.actual_arch if self.use_actual_arch else target_toolchain.toolchain_arch
             if arch is not None:
-                configure.append('--target=' + arch)
+                configure.append(f'--target={arch}')
 
         configure += self.configure_args
 
@@ -102,7 +102,7 @@ class AutotoolsProject(MakeProject):
     def get_make_install_args(self, toolchain):
         args = MakeProject.get_make_install_args(self, toolchain)
         if self.use_destdir:
-            args += ['DESTDIR=' + toolchain.install_prefix]
+            args += [f'DESTDIR={toolchain.install_prefix}']
         return args
 
     def _build(self, toolchain, target_toolchain=None):

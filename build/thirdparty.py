@@ -78,7 +78,7 @@ class Toolchain:
         self.strip = strip
         self.windres = windres
 
-        common_flags = '-Os -g -ffunction-sections -fdata-sections -fvisibility=hidden ' + arch_cflags
+        common_flags = f'-Os -g -ffunction-sections -fdata-sections -fvisibility=hidden {arch_cflags}'
         self.cflags = common_flags
         self.cxxflags = common_flags
         self.cppflags = '-isystem ' + os.path.join(install_prefix, 'include') + ' -DNDEBUG ' + cppflags

@@ -24,9 +24,9 @@ for dtime in times:
   release = dtime['release']
   landing = dtime['landing']
 
-  print("Takeoff: {}, location {}".format(takeoff['time'], takeoff['location']))
-  print("Release: {}, location {}".format(release['time'], release['location']))
-  print("Landing: {}, location {}".format(landing['time'], landing['location']))
+  print(f"Takeoff: {takeoff['time']}, location {takeoff['location']}")
+  print(f"Release: {release['time']}, location {release['location']}")
+  print(f"Landing: {landing['time']}, location {landing['location']}")
 
   print("Flight path from takeoff to release:")
   fixes = flight.path(takeoff['time'], release['time'])
@@ -50,9 +50,9 @@ for dtime in times:
   landing = dtime['landing']
 
 
-  print("Takeoff: {}, location {}".format(takeoff['time'], takeoff['location']))
-  print("Release: {}, location {}".format(release['time'], release['location']))
-  print("Landing: {}, location {}".format(landing['time'], landing['location']))
+  print(f"Takeoff: {takeoff['time']}, location {takeoff['location']}")
+  print(f"Release: {release['time']}, location {release['location']}")
+  print(f"Landing: {landing['time']}, location {landing['location']}")
 
   print("Flight path from takeoff to release:")
   fixes = flight.path(takeoff['time'], release['time'])
@@ -85,7 +85,7 @@ del flight
 print()
 print("Init xcsoar.Flight with a python sequence")
 
-flight = xcsoar.Flight([fix[0:5] for fix in flight_sequence])
+flight = xcsoar.Flight([fix[:5] for fix in flight_sequence])
 
 
 def assert_fixes_equal(fix1, fix2):

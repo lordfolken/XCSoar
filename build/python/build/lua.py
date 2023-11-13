@@ -9,7 +9,7 @@ class LuaProject(MakeProject):
         MakeProject.__init__(self, url, alternative_url, md5, installed, **kwargs)
 
     def get_make_args(self, toolchain):
-        cflags = toolchain.cflags + ' ' + toolchain.cppflags
+        cflags = f'{toolchain.cflags} {toolchain.cppflags}'
 
         # hard-code lua_getlocaledecpoint() because
         # localeconv()->decimal_point is not available on the Bionic
@@ -17,12 +17,12 @@ class LuaProject(MakeProject):
         cflags += " \"-Dlua_getlocaledecpoint()='.'\""
 
         return MakeProject.get_make_args(self, toolchain) + [
-            'CC=' + toolchain.cc,
-            'AR=' + toolchain.ar + ' rcu',
+            f'CC={toolchain.cc}',
+            f'AR={toolchain.ar} rcu',
             'RANLIB=true',
-            'MYCFLAGS=' + cflags,
-            'MYLDFLAGS=' + toolchain.ldflags,
-            'liblua.a'
+            f'MYCFLAGS={cflags}',
+            f'MYLDFLAGS={toolchain.ldflags}',
+            'liblua.a',
         ]
 
     def _build(self, toolchain):

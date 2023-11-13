@@ -33,13 +33,7 @@ set(CMAKE_CXX_FLAGS_INIT "{toolchain.cxxflags} {toolchain.cppflags}")
     __write_cmake_compiler(f, 'CXX', toolchain.cxx)
 
     if cmake_system_name == 'Darwin':
-        # On macOS, cmake forcibly adds an "-isysroot" flag even if
-        # one is already present in the flags variable; this breaks
-        # cross-compiling for iOS, and can be worked around by setting
-        # the CMAKE_OSX_SYSROOT variable
-        # (https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_SYSROOT.html).
-        m = re.search(r'-isysroot +(\S+)', toolchain.cflags)
-        if m:
+        if m := re.search(r'-isysroot +(\S+)', toolchain.cflags):
             sysroot = m.group(1)
 
             print(f'set(CMAKE_OSX_SYSROOT {sysroot})', file=f)
@@ -56,37 +50,33 @@ def configure(toolchain, src, build, args=(), env=None):
     cross_args = []
 
     if toolchain.is_windows:
-        cross_args.append('-DCMAKE_RC_COMPILER=' + toolchain.windres)
+        cross_args.append(f'-DCMAKE_RC_COMPILER={toolchain.windres}')
 
     # Several targets need a sysroot to prevent pkg-config from
     # looking for libraries on the build host (TODO: fix this
     # properly); but we must not do that on Android because the NDK
     # has a sysroot already
     if '-android' not in toolchain.actual_arch and '-darwin' not in toolchain.actual_arch:
-        cross_args.append('-DCMAKE_SYSROOT=' + toolchain.install_prefix)
+        cross_args.append(f'-DCMAKE_SYSROOT={toolchain.install_prefix}')
 
     os.makedirs(build, exist_ok=True)
     cmake_toolchain_file = os.path.join(build, 'cmake_toolchain_file')
     with open(cmake_toolchain_file, 'w') as f:
         __write_cmake_toolchain_file(f, toolchain)
 
-    configure = [
-        'cmake',
-        src,
+    configure = (
+        [
+            'cmake',
+            src,
+            f'-DCMAKE_TOOLCHAIN_FILE={cmake_toolchain_file}',
+            f'-DCMAKE_INSTALL_PREFIX={toolchain.install_prefix}',
+            '-DCMAKE_BUILD_TYPE=release',
+            '-GNinja',
+        ]
+        + cross_args
+    ) + args
 
-        '-DCMAKE_TOOLCHAIN_FILE=' + cmake_toolchain_file,
-
-        '-DCMAKE_INSTALL_PREFIX=' + toolchain.install_prefix,
-        '-DCMAKE_BUILD_TYPE=release',
-
-        '-GNinja',
-    ] + cross_args + args
-
-    if env is None:
-        env = toolchain.env
-    else:
-        env = {**toolchain.env, **env}
-
+    env = toolchain.env if env is None else {**toolchain.env, **env}
     print(configure)
     subprocess.check_call(configure, env=env, cwd=build)
 

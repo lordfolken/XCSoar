@@ -9,18 +9,18 @@ class OpenSSLProject(MakeProject):
 
     def get_make_args(self, toolchain):
         return MakeProject.get_make_args(self, toolchain) + [
-            'CC=' + toolchain.cc,
-            'CFLAGS=' + toolchain.cflags,
-            'CPPFLAGS=' + toolchain.cppflags,
-            'AR=' + toolchain.ar,
-            'RANLIB=' + toolchain.ranlib,
+            f'CC={toolchain.cc}',
+            f'CFLAGS={toolchain.cflags}',
+            f'CPPFLAGS={toolchain.cppflags}',
+            f'AR={toolchain.ar}',
+            f'RANLIB={toolchain.ranlib}',
             'build_libs',
         ]
 
     def get_make_install_args(self, toolchain):
         # OpenSSL's Makefile runs "ranlib" during installation
         return MakeProject.get_make_install_args(self, toolchain) + [
-            'RANLIB=' + toolchain.ranlib,
+            f'RANLIB={toolchain.ranlib}'
         ]
 
     def _build(self, toolchain):
@@ -52,18 +52,25 @@ class OpenSSLProject(MakeProject):
         }
 
         openssl_arch = openssl_archs[toolchain.toolchain_arch]
-        cross_compile_prefix = toolchain.toolchain_arch + '-'
+        cross_compile_prefix = f'{toolchain.toolchain_arch}-'
 
-        subprocess.check_call(['./Configure',
-                               'no-shared',
-                               'no-module', 'no-engine', 'no-static-engine',
-                               'no-async',
-                               'no-tests',
-                               'no-makedepend',
-                               'no-asm', # "asm" causes build failures on Windows
-                               openssl_arch,
-                               '--cross-compile-prefix=' + cross_compile_prefix,
-                               '--libdir=lib', # no "lib64" on amd64, please
-                               '--prefix=' + toolchain.install_prefix],
-                              cwd=src, env=toolchain.env)
+        subprocess.check_call(
+            [
+                './Configure',
+                'no-shared',
+                'no-module',
+                'no-engine',
+                'no-static-engine',
+                'no-async',
+                'no-tests',
+                'no-makedepend',
+                'no-asm',
+                openssl_arch,
+                f'--cross-compile-prefix={cross_compile_prefix}',
+                '--libdir=lib',
+                f'--prefix={toolchain.install_prefix}',
+            ],
+            cwd=src,
+            env=toolchain.env,
+        )
         self.build_make(toolchain, src)

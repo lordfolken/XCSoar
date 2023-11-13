@@ -18,7 +18,7 @@ class MakeProject(Project):
             return 12
 
     def get_make_args(self, toolchain):
-        return ['--quiet', '-j' + str(self.get_simultaneous_jobs())]
+        return ['--quiet', f'-j{str(self.get_simultaneous_jobs())}']
 
     def get_make_install_args(self, toolchain):
         return ['--quiet', self.install_target]

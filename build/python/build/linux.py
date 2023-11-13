@@ -3,8 +3,8 @@ from .makeproject import MakeProject
 class SabotageLinuxHeadersProject(MakeProject):
     def get_make_install_args(self, toolchain):
         return MakeProject.get_make_install_args(self, toolchain) + [
-            'ARCH=arm', # TODO: don't hard-code Kobo settings
-            'prefix=' + toolchain.install_prefix,
+            'ARCH=arm',
+            f'prefix={toolchain.install_prefix}',
         ]
 
     def _build(self, toolchain):

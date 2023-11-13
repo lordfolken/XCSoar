@@ -12,27 +12,20 @@ def __no_ccache(cmd):
 def make_cross_file(toolchain):
     if toolchain.is_windows:
         system = 'windows'
-        windres = "windres = '%s'" % toolchain.windres
+        windres = f"windres = '{toolchain.windres}'"
     else:
         system = 'linux'
         windres = ''
 
     if toolchain.actual_arch.startswith('arm'):
         cpu_family = 'arm'
-        if toolchain.actual_arch.startswith('armv7'):
-            cpu = 'armv7'
-        else:
-            cpu = 'armv6'
+        cpu = 'armv7' if toolchain.actual_arch.startswith('armv7') else 'armv6'
     elif toolchain.actual_arch.startswith('aarch64'):
         cpu_family = 'aarch64'
         cpu = 'arm64-v8a'
     else:
         cpu_family = 'x86'
-        if 'x86_64' in toolchain.actual_arch:
-            cpu = 'x86_64'
-        else:
-            cpu = 'i686'
-
+        cpu = 'x86_64' if 'x86_64' in toolchain.actual_arch else 'i686'
     # TODO: support more CPUs
     endian = 'little'
 
@@ -56,17 +49,19 @@ pkgconfig = '{toolchain.pkg_config}'
             # Run unit tests with WINE when cross-building for Windows
             print("exe_wrapper = 'wine'", file=f)
 
-        f.write(f"""
+        f.write(
+            f"""
 [properties]
 root = '{toolchain.install_prefix}'
 
 [built-in options]
-c_args = {repr((toolchain.cppflags + ' ' + toolchain.cflags).split())}
+c_args = {repr(f'{toolchain.cppflags} {toolchain.cflags}'.split())}
 c_link_args = {repr(toolchain.ldflags.split() + toolchain.libs.split())}
 
-cpp_args = {repr((toolchain.cppflags + ' ' + toolchain.cxxflags).split())}
+cpp_args = {repr(f'{toolchain.cppflags} {toolchain.cxxflags}'.split())}
 cpp_link_args = {repr(toolchain.ldflags.split() + toolchain.libs.split())}
-""")
+"""
+        )
 
         if 'android' in toolchain.actual_arch:
             f.write("""
