@@ -336,7 +336,8 @@ try {
 
   repository.Clear();
 
-  const auto path = LocalPath(_T("repository"));
+  const auto path =
+      AllocatedPath::Build(MakeCacheDirectory(_T("repo")), _T("repository"));
   FileLineReaderA reader(path);
   ParseFileRepository(repository, reader);
 } catch (const std::runtime_error &e) {
