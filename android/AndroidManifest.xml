@@ -41,6 +41,8 @@
                  android:resource="@xml/usb_device_filter" />
       <meta-data android:name="android.max_aspect"
                  android:value="2.1"/>
+      <meta-data android:name="android.app.backup.fullbackup"
+                 android:resource="@xml/backup_rules" />
     </activity>
 
     <service android:name=".MyService" android:foregroundServiceType="location"/>
