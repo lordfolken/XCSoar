@@ -33,7 +33,7 @@ env:
 
 jobs:
   build-ubuntu:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     env:
       TARGET: UNIX
@@ -122,7 +122,7 @@ jobs:
     # Build with AddressSanitizer and all libstdc++ debugging features
     # enabled.
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     env:
       TARGET: UNIX
@@ -178,7 +178,7 @@ jobs:
           make -j$(nproc) TARGET=${{env.TARGET }} DEBUG=${{ env.DEBUG }} VFB=y SANITIZE=y DEBUG_GLIBCXX=y USE_CCACHE=y V=2 everything check
 
   build-kobo:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     env:
       TARGET: KOBO
@@ -269,7 +269,7 @@ jobs:
           TARGET: ${{ secrets.REPOSITORY_REMOTE_PATH }}/testing/${{ env.TARGET }}/
 
   build-android:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     env:
       TARGET: ANDROIDFAT
@@ -369,7 +369,7 @@ jobs:
           TARGET: ${{ secrets.REPOSITORY_REMOTE_PATH }}/testing/${{ env.TARGET }}/
 
   build-windows:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     env:
       TARGET: WIN64
