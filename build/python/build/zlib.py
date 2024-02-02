@@ -9,24 +9,24 @@ class ZlibProject(MakeProject):
 
     def get_make_args(self, toolchain):
         return MakeProject.get_make_args(self, toolchain) + [
-            'CC=' + toolchain.cc + ' ' + toolchain.cppflags + ' ' + toolchain.cflags,
-            'CPP=' + toolchain.cc + ' -E ' + toolchain.cppflags,
-            'AR=' + toolchain.ar,
-            'ARFLAGS=' + toolchain.arflags,
-            'RANLIB=' + toolchain.ranlib,
-            'LDSHARED=' + toolchain.cc + ' -shared',
-            'libz.a'
+            f'CC={toolchain.cc} {toolchain.cppflags} {toolchain.cflags}',
+            f'CPP={toolchain.cc} -E {toolchain.cppflags}',
+            f'AR={toolchain.ar}',
+            f'ARFLAGS={toolchain.arflags}',
+            f'RANLIB={toolchain.ranlib}',
+            f'LDSHARED={toolchain.cc} -shared',
+            'libz.a',
         ]
 
     def get_make_install_args(self, toolchain):
-        return [
-            'RANLIB=' + toolchain.ranlib,
-            self.install_target
-        ]
+        return [f'RANLIB={toolchain.ranlib}', self.install_target]
 
     def _build(self, toolchain):
         src = self.unpack(toolchain, out_of_tree=False)
 
-        subprocess.check_call(['./configure', '--prefix=' + toolchain.install_prefix, '--static'],
-                              cwd=src, env=toolchain.env)
+        subprocess.check_call(
+            ['./configure', f'--prefix={toolchain.install_prefix}', '--static'],
+            cwd=src,
+            env=toolchain.env,
+        )
         self.build_make(toolchain, src)

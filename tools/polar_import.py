@@ -50,46 +50,44 @@ class polar:
 
 # Read scan digitization result
 def read_xyscan_file(fnam):
-    f = open(fnam, 'r')
-    if not f:
-        return None
-    locale.setlocale(locale.LC_NUMERIC, 'de_DE.UTF-8')
-    ret = polar()
-    for line in f:
-        if line[0] == '#':
-            if "Quelle:" in line:
-                ret._name = line.rstrip(".jpg\n").split('/')[-1]
-            if "Kommentar:" in line:
-                ret._name = line.split(':')[-1].strip()
-            continue
-        line_l = line.strip().split('\t')
-        a = list(map(locale.atof, line_l))
-        ret._x.append(a[0])
-        ret._y.append(a[1])
-    f.close()
+    with open(fnam, 'r') as f:
+        if not f:
+            return None
+        locale.setlocale(locale.LC_NUMERIC, 'de_DE.UTF-8')
+        ret = polar()
+        for line in f:
+            if line[0] == '#':
+                if "Quelle:" in line:
+                    ret._name = line.rstrip(".jpg\n").split('/')[-1]
+                if "Kommentar:" in line:
+                    ret._name = line.split(':')[-1].strip()
+                continue
+            line_l = line.strip().split('\t')
+            a = list(map(locale.atof, line_l))
+            ret._x.append(a[0])
+            ret._y.append(a[1])
     return ret
 
 # Read a .rawpolar file
 def read_raw_polar(fnam, weight=0.0):
-    f = open(fnam, 'r')
-    if not f:
-        return None
-    ret = polar()
-    count = 0
-    for line in f:
-        if line[0] == '#' : continue
-        if count == 0 :
-            ret._name = line.strip()
-        elif count == 1 :
-            ret._w = float(line.strip())
-        elif count == 2 :
-            ret._S = float(line.strip())
-        elif count == 3 :
-            ret._x = list(map(float, line.strip('[] \n').split(',')))
-        elif count == 4 :
-            ret._y = list(map(float, line.strip('[] \n').split(',')))
-        count += 1
-    f.close()
+    with open(fnam, 'r') as f:
+        if not f:
+            return None
+        ret = polar()
+        count = 0
+        for line in f:
+            if line[0] == '#' : continue
+            if count == 0 :
+                ret._name = line.strip()
+            elif count == 1 :
+                ret._w = float(line.strip())
+            elif count == 2 :
+                ret._S = float(line.strip())
+            elif count == 3 :
+                ret._x = list(map(float, line.strip('[] \n').split(',')))
+            elif count == 4 :
+                ret._y = list(map(float, line.strip('[] \n').split(',')))
+            count += 1
     if weight != 0.0:
         s = np.sqrt(weight / ret._w)
         ret._w = weight
@@ -101,9 +99,8 @@ def read_raw_polar(fnam, weight=0.0):
 def scale_polar(p, weight, wingload=0.0):
     if wingload != 0.0:
         weight = p._S * wingload
-    else:
-        if weight == 0.0:
-            weight = p._w
+    elif weight == 0.0:
+        weight = p._w
     s = np.sqrt(weight / p._w)
     p._w = weight
     p._x = list(map(lambda x: x * s, p._x))
@@ -111,31 +108,30 @@ def scale_polar(p, weight, wingload=0.0):
     return p
 
 def get_current_xc_polar(glider, weight=0.0):
-    f = open("../src/Polar/PolarStore.cpp", 'r')
-    if not f:
-        return None
-    ret = None
-    for line in f:
-        if line[0:7] != "  { _T(" : continue
-        if glider in line:
-            ##357, 165, 108.8, -0.64, 156.4, -1.18, 211.13, -2.5, 9.0, 0.0, 114
-            ret = polar()
-            ret._name = glider + "(xcs)"
-            line = line.split('{')[1];
-            line = line.split('}')[0];
-            line_l = line.strip(" \n").split(',')
-            del line_l[0]
-            a = list(map(float, line_l))
-            s = 1.0
-            ret._w = a[0]
-            if weight != 0:
-                s = np.sqrt(weight/a[0])
-                ret._w = weight
-            ret._S = a[8]
-            ret._x = [a[2]*s, a[4]*s, a[6]*s]
-            ret._y = [a[3]*s, a[5]*s, a[7]*s]
-            break
-    f.close()
+    with open("../src/Polar/PolarStore.cpp", 'r') as f:
+        if not f:
+            return None
+        ret = None
+        for line in f:
+            if line[:7] != "  { _T(": continue
+            if glider in line:
+                ##357, 165, 108.8, -0.64, 156.4, -1.18, 211.13, -2.5, 9.0, 0.0, 114
+                ret = polar()
+                ret._name = f"{glider}(xcs)"
+                line = line.split('{')[1];
+                line = line.split('}')[0];
+                line_l = line.strip(" \n").split(',')
+                del line_l[0]
+                a = list(map(float, line_l))
+                s = 1.0
+                ret._w = a[0]
+                if weight != 0:
+                    s = np.sqrt(weight/a[0])
+                    ret._w = weight
+                ret._S = a[8]
+                ret._x = [a[2]*s, a[4]*s, a[6]*s]
+                ret._y = [a[3]*s, a[5]*s, a[7]*s]
+                break
     return ret
 
 
@@ -146,28 +142,23 @@ def cutoff_stall(p):
     minsinkspeed = p._x[np.argmax(p._y)]
     x = []
     y = []
-    count = 0
-    for i in p._x:
+    for count, i in enumerate(p._x):
         if i > minsinkspeed:
             x.append(p._x[count])
             y.append(p._y[count])
-        count += 1
     p._x = x
     p._y = y
     return
 
 def best_ld(p):
-    ld = []
-    for i in range(len(p._x)):
-        ld.append((-p._x[i])/p._y[i])
+    ld = [(-p._x[i])/p._y[i] for i in range(len(p._x))]
     return p._x[np.argmax(ld)]
 
 def emphasize_bestld(p):
     ldmax_speed = best_ld(p)
     x = []
     y = []
-    count = 0
-    for i in p._x:
+    for count, i in enumerate(p._x):
         emph = 8-int(abs((i-ldmax_speed)*(i-ldmax_speed))/8)
         if emph > 0:
             for _ in range(emph):
@@ -175,7 +166,6 @@ def emphasize_bestld(p):
                 y.append(p._y[count])
         x.append(p._x[count])
         y.append(p._y[count])
-        count += 1
     p._x = x
     p._y = y
     return
@@ -184,8 +174,7 @@ def emphasize_lowerspeeds(p):
     min_speed = p._x[np.argmin(p._x)]
     x = []
     y = []
-    count = 0
-    for i in p._x:
+    for count, i in enumerate(p._x):
         emph = 8-int(abs(i-min_speed)/10)
         if i < 140.:
             if emph > 0:
@@ -194,16 +183,12 @@ def emphasize_lowerspeeds(p):
                     y.append(p._y[count])
             x.append(p._x[count])
             y.append(p._y[count])
-        count += 1
     p._x = x
     p._y = y
     return
 
 def polar_store_line(p, wingload=0.0):
-    if wingload == 0.0:
-        wieght = int(p._w)
-    else:
-        wieght = int(wingload * p._S)
+    wieght = int(p._w) if wingload == 0.0 else int(wingload * p._S)
     p = scale_polar(p, wieght)
     pf = np.polyfit(p._x, p._y, 2)
     p1d = np.poly1d(pf)
@@ -234,12 +219,12 @@ def plot_polar(ax, p, g, l=None):
     polar_store_line(p, wingload)
 
     ch = '.' # ida polar with many points
-    leg = "digitized, grade=" + str(grade)
+    leg = f"digitized, grade={str(grade)}"
     if len(p._x) == 3:
         leg = "3 points"
     if pnr > 1:
         ch = 'o'
-        l.append(p._name + " " + str(p._w) + "kg")
+        l.append(f"{p._name} {str(p._w)}kg")
 
     # Draw dots
     dots, = ax.plot(p._x, p._y, ch)
@@ -250,7 +235,11 @@ def plot_polar(ax, p, g, l=None):
 
     if pnr == 1:
         # Add a legend
-        l1 = ax.legend([dots, plot], [leg, p._name + " " + str(p._w) + "kg"], bbox_to_anchor=(1.05, 1))
+        l1 = ax.legend(
+            [dots, plot],
+            [leg, f"{p._name} {str(p._w)}kg"],
+            bbox_to_anchor=(1.05, 1),
+        )
         plt.gca().add_artist(l1)
 
     return plot
@@ -288,17 +277,13 @@ if len(sys.argv)==1:
 
 # Get the desired ref weight
 wingload = args.wingload
-refw = 0.0
-if wingload == 0.0:
-    refw = args.refw
-
+refw = args.refw if wingload == 0.0 else 0.0
 # Fit digi points with this grade
 grade = args.grade
 
 # Parse xyscan output
 if args.xyscan != None:
-    tmp = read_xyscan_file(args.xyscan)
-    if tmp:
+    if tmp := read_xyscan_file(args.xyscan):
         if refw != 0.0:
             tmp._w = refw
         print(tmp._name)
@@ -338,10 +323,7 @@ if args.cmp:
     for cmplist in args.cmp:
         for f in cmplist:
             xcp = None
-            if "." in f: # from XCS sources
-                xcp = read_raw_polar(f)
-            else:
-                xcp = get_current_xc_polar(f)
+            xcp = read_raw_polar(f) if "." in f else get_current_xc_polar(f)
             if xcp:
                 xcp = scale_polar(xcp, refw, wingload)
                 cmp.append(xcp)
@@ -362,7 +344,7 @@ if ida:
 
 plt.title(title, size=18)
 
-if len(cmp) > 0:
+if cmp:
     legend = []
     plot = []
     for x in cmp:

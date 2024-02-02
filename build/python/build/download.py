@@ -28,7 +28,7 @@ def download_and_verify(url, alternative_url, md5, parent_path):
     path = os.path.join(parent_path, os.path.basename(url))
 
     # protect concurrent builds by holding an exclusive lock
-    with lockfile(os.path.join(parent_path, 'lock.' + os.path.basename(url))):
+    with lockfile(os.path.join(parent_path, f'lock.{os.path.basename(url)}')):
         try:
             if verify_file_digest(path, md5): return path
             os.unlink(path)

@@ -12,16 +12,18 @@ class Project:
         if base is None:
             basename = os.path.basename(url)
             m = re.match(r'^(.+)\.(tar(\.(gz|bz2|xz|lzma))?|zip)$', basename)
-            if not m: raise RuntimeError('Could not identify tarball name: ' + basename)
+            if not m:
+                raise RuntimeError(f'Could not identify tarball name: {basename}')
             self.base = m.group(1)
         else:
             self.base = base
 
         if name is None or version is None:
             m = re.match(r'^([-\w]+)-(\d[\d.]*[a-z]?[\d.]*(?:-(?:alpha|beta)\d+)?)(\+.*)?$', self.base)
-            if not m: raise RuntimeError('Could not identify tarball name: ' + self.base)
-            if name is None: name = m.group(1)
-            if version is None: version = m.group(2)
+            if not m:
+                raise RuntimeError(f'Could not identify tarball name: {self.base}')
+        if name is None: name = m.group(1)
+        if version is None: version = m.group(2)
 
         self.name = name
         self.version = version
@@ -48,14 +50,12 @@ class Project:
             return False
 
     def unpack(self, toolchain, out_of_tree=True):
-        if out_of_tree:
-            parent_path = toolchain.src_path
-        else:
-            parent_path = toolchain.build_path
-
+        parent_path = toolchain.src_path if out_of_tree else toolchain.build_path
         # protect concurrent builds by holding an exclusive lock
         os.makedirs(parent_path, exist_ok=True)
-        self.__unpack_lockfile = open(os.path.join(parent_path, 'lock.' + self.base), 'w')
+        self.__unpack_lockfile = open(
+            os.path.join(parent_path, f'lock.{self.base}'), 'w'
+        )
         fcntl.flock(self.__unpack_lockfile.fileno(), fcntl.LOCK_EX)
 
         path = untar(self.download(toolchain), parent_path, self.base,
