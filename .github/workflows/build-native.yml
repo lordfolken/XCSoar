@@ -179,7 +179,7 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.type }}-${{ env.TARGET }}
 
       - name: "Cache third-party libraries"
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-libs-${{ env.TARGET }}-${{ hashFiles('build/**') }}
           path: |
@@ -262,7 +262,7 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.type }}-${{ env.TARGET }}
 
       - name: "Cache third-party libraries"
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-libs-${{ env.TARGET }}-${{ hashFiles('build/**') }}
           path: |
@@ -340,7 +340,7 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.type }}-${{ env.TARGET }}
 
       - name: "Cache third-party libraries"
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-libs-${{ env.TARGET }}-${{ hashFiles('build/**') }}
           path: |
@@ -496,7 +496,7 @@ jobs:
           submodules: true
 
       - name: "Cache third-party libraries"
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-libs-${{ env.TARGET }}-${{ hashFiles('build/**') }}
           path: |
