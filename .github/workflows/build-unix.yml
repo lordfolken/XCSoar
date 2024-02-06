@@ -34,7 +34,7 @@ jobs:
           echo "DEBUG=n" >> $GITHUB_ENV
           echo "TARGET_FINAL=xcsoar" >> $GITHUB_ENV
       - id: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: true
       - id: cache-ccache

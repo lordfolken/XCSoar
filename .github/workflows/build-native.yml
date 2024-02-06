@@ -48,7 +48,7 @@ jobs:
           echo "DEBUG=n" >> $GITHUB_ENV
           echo "TARGET_FINAL=xcsoar" >> $GITHUB_ENV
       - id: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: true
       - id: cache-ccache
@@ -117,7 +117,7 @@ jobs:
 
     steps:
       - id: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: true
       - id: cache-ccache
@@ -171,7 +171,7 @@ jobs:
           echo "DEBUG=n" >> $GITHUB_ENV
 
       - id: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -255,7 +255,7 @@ jobs:
           echo "TARGET_FINAL=XCSoar" >> $GITHUB_ENV
 
       - id: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -335,7 +335,7 @@ jobs:
           echo "DEBUG=n" >> $GITHUB_ENV
           echo "TARGET_FINAL=XCSoar" >> $GITHUB_ENV
       - id: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: true
       - id: cache-ccache
@@ -411,7 +411,7 @@ jobs:
     needs: build-windows
     steps:
       - id: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: fetch artifacts
         uses: actions/download-artifact@v2
         with:
@@ -430,7 +430,7 @@ jobs:
 
     steps:
       - id: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -497,7 +497,7 @@ jobs:
 
     steps:
       - id: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
