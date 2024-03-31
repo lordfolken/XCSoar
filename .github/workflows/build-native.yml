@@ -494,7 +494,7 @@ jobs:
         working-directory: ${{ github.workspace }}
 
   build-macos:
-    runs-on: macos-12
+    runs-on: macos-14
 
     env:
       TARGET: OSX64
@@ -563,7 +563,7 @@ jobs:
           TARGET: ${{ secrets.REPOSITORY_REMOTE_PATH }}/testing/${{ env.TARGET }}/
 
   build-ios:
-    runs-on: macos-12
+    runs-on: macos-14
 
     env:
       TARGET: IOS64
