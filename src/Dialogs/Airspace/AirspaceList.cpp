@@ -183,7 +183,7 @@ static constexpr StaticEnumChoice type_filter_list[] = {
   { WARNING, _T("WARNING") },
   { PROTECTED, _T("PROTECTED") },
   { HTZ, _T("HTZ") },
-  { GLIDING_SECTOR, _T("Gliding ector") },
+  { GLIDING_SECTOR, _T("Gliding Sector") },
   { TRP, _T("TRP") },
   { TIZ, _T("TIZ") },
   { TIA, _T("TIA") },
