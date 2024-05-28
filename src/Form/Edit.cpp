@@ -256,27 +256,23 @@ WndProperty::DecValue() noexcept
   return 0;
 }
 
-void
-WndProperty::OnPaint(Canvas &canvas) noexcept
+void WndProperty::OnPaint(Canvas &canvas) noexcept
 {
   const bool focused = HasCursorKeys() && HasFocus();
 
-  /* background and selector */
+  // Background and selector
   if (pressed) {
     canvas.Clear(look.list.pressed.background_color);
   } else if (focused) {
     canvas.Clear(look.focused.background_color);
   } else {
-    /* don't need to erase the background when it has been done by the
-       parent window already */
+    // Don't need to erase the background when it has been done by the parent window already
     if (HaveClipping())
       canvas.Clear(look.background_color);
   }
 
   if (!caption.empty()) {
-    canvas.SetTextColor(focused && !pressed
-                          ? look.focused.text_color
-                          : look.text_color);
+    canvas.SetTextColor(focused && !pressed ? look.focused.text_color : look.text_color);
     canvas.SetBackgroundTransparent();
     canvas.Select(look.text_font);
 
@@ -300,8 +296,7 @@ WndProperty::OnPaint(Canvas &canvas) noexcept
     if (HaveClipping())
       canvas.DrawText(org, caption.c_str());
     else
-      canvas.DrawClippedText(org, clip_width - org.x,
-                             caption.c_str());
+      canvas.DrawClippedText(org, clip_width - org.x, caption.c_str());
   }
 
   Color background_color, text_color;
@@ -310,20 +305,31 @@ WndProperty::OnPaint(Canvas &canvas) noexcept
     text_color = COLOR_WHITE;
   } else if (IsEnabled()) {
     if (IsReadOnly())
-      background_color = Color(0xf0, 0xf0, 0xf0);
+      background_color = Color(0xf0, 0xf0, 0xf0); // Light gray for read-only
     else
       background_color = COLOR_WHITE;
     text_color = COLOR_BLACK;
   } else {
-    background_color = COLOR_LIGHT_GRAY;
-    text_color = COLOR_DARK_GRAY;
+    background_color = COLOR_LIGHT_GRAY; // Light gray when disabled
+    text_color = COLOR_DARK_GRAY; // Dark gray text when disabled
   }
 
+  // Draw the background rectangle for the value
   canvas.DrawFilledRectangle(edit_rc, background_color);
 
-  canvas.SelectHollowBrush();
-  canvas.SelectBlackPen();
-  canvas.DrawRectangle(edit_rc);
+  // Draw sunken border to create a sunken effect
+  Color light_edge = COLOR_GRAY; // Light edge color
+  Color dark_edge = Color(0x40, 0x40, 0x40); // Dark edge color
+
+  // Top and left edges (light)
+  canvas.Select(Pen(1, dark_edge));
+  canvas.DrawLine({edit_rc.left - 1, edit_rc.top -1 }, {edit_rc.right - 1 , edit_rc.top - 1}); // Top edge
+  canvas.DrawLine({edit_rc.left - 1, edit_rc.top -1 }, {edit_rc.left - 1, edit_rc.bottom - 1}); // Left edge
+
+  // Bottom and right edges (dark)
+  canvas.Select(Pen(1, light_edge));
+  canvas.DrawLine({edit_rc.right, edit_rc.top}, {edit_rc.right, edit_rc.bottom}); // Right edge
+  canvas.DrawLine({edit_rc.left, edit_rc.bottom}, {edit_rc.right, edit_rc.bottom}); // Bottom edge
 
   if (!value.empty()) {
     canvas.SetTextColor(text_color);
@@ -338,7 +344,6 @@ WndProperty::OnPaint(Canvas &canvas) noexcept
     canvas.TextAutoClipped({x, y}, value.c_str());
   }
 }
-
 void
 WndProperty::SetText(const TCHAR *_value) noexcept
 {
