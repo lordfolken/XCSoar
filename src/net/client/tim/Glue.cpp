@@ -21,8 +21,8 @@ Glue::~Glue() noexcept = default;
 void
 Glue::OnTimer(const NMEAInfo &basic) noexcept
 {
-  if (!basic.gps.real || !basic.location_available)
-    /* we need a real GPS location */
+  if (!basic.location_available)
+    /* we need a GPS location */
     return;
 
   if (inject_task)
@@ -41,7 +41,7 @@ Co::InvokeTask
 Glue::Start(const GeoPoint &location)
 {
   auto new_thermals = co_await GetThermals(curl, std::chrono::hours(1),
-                                           location, 20);
+                                           location, 80);
   LogDebug("Downloaded {} thermals from ThermalInfoMap",
            new_thermals.size());
 
