@@ -27,13 +27,21 @@ jobs:
         uses: ASzc/change-string-case-action@v6
         with:
           string: ${{ github.repository }}
+      - name: Determine Tag
+        id: determine_tag
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "DOCKER_TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          else
+            echo "DOCKER_TAG=latest" >> $GITHUB_ENV
+          fi
       - name: build and push
         uses: docker/build-push-action@v5
         with:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
           context: ./ide
           file: ./ide/docker/Dockerfile
-          tags: ghcr.io/${{ steps.lc_repository_name.outputs.lowercase }}/xcsoar-build:latest
+          tags: ghcr.io/${{ steps.lc_repository_name.outputs.lowercase }}/xcsoar-build:${{ env.DOCKER_TAG }}
           cache-from: type=registry,ref=ghcr.io/${{ steps.string.outputs.lowercase }}/xcsoar-build:latest
           cache-to: type=inline
           secrets: |
