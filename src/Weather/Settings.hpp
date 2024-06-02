@@ -22,6 +22,8 @@ struct WeatherSettings {
    * Enable Thermal Information Map?
    */
   bool enable_tim;
+  double tim_range;
+  std::chrono::minutes tim_update_frequency;
 #endif
 
   void SetDefaults() {
@@ -31,6 +33,8 @@ struct WeatherSettings {
 
 #ifdef HAVE_HTTP
     enable_tim = false;
+    tim_range = 80;
+    tim_update_frequency = std::chrono::minutes(1);
 #endif
   }
 };

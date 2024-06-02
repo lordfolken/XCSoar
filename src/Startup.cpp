@@ -574,8 +574,10 @@ Startup(UI::Display &display)
 #endif
 
 #ifdef HAVE_HTTP
-  if (map_window != nullptr)
+  if (map_window != nullptr) {
     map_window->SetThermalInfoMap(net_components->tim.get());
+    LogString("ThermalInformationMap: Fetching Thermals");
+  };
 #endif
 
   assert(!global_running);

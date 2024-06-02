@@ -4,6 +4,7 @@
 #include "WeatherConfigPanel.hpp"
 #include "Profile/Keys.hpp"
 #include "Profile/Profile.hpp"
+#include "Form/DataField/Enum.hpp"
 #include "Weather/Settings.hpp"
 #include "Widget/RowFormWidget.hpp"
 #include "net/http/Features.hpp"
@@ -11,6 +12,8 @@
 #include "Language/Language.hpp"
 #include "UIGlobals.hpp"
 #include "util/NumberParser.hpp"
+
+using namespace std::chrono;
 
 enum ControlIndex {
 #ifdef HAVE_PCMET
@@ -24,6 +27,8 @@ enum ControlIndex {
 
 #ifdef HAVE_HTTP
   ENABLE_TIM,
+  TIM_RANGE,
+  TIM_UPDATE_FREQUENCY,
 #endif
 };
 
@@ -66,6 +71,13 @@ WeatherConfigPanel::Prepare(ContainerWindow &parent,
   AddBoolean(_T("Thermal Information Map"),
              _("Show thermal locations downloaded from Thermal Information Map (thermalmap.info)."),
              settings.enable_tim);
+
+  AddFloat(_T("Thermal Information Map Radius"),
+             _("Radius around current location where Thermals are downloaded"),
+             _T("%.0f %s"), _T("%.0f"), 1000, 20000, 10, false, UnitGroup::DISTANCE, settings.tim_range);
+
+  AddDuration(_T("Thermal Information Update Frequency"),
+             _T("Time frequency where Thermals are downloaded"), {}, minutes{30}, minutes{1}, settings.tim_update_frequency);
 #endif
 }
 
@@ -96,7 +108,16 @@ WeatherConfigPanel::Save(bool &_changed) noexcept
 #ifdef HAVE_HTTP
   changed |= SaveValue(ENABLE_TIM, ProfileKeys::EnableThermalInformationMap,
                        settings.enable_tim);
+
+  changed |= SaveValue(TIM_RANGE, UnitGroup::DISTANCE,
+                       ProfileKeys::ThermalInformationMapRange,
+                       settings.tim_range);
+
+  changed |= SaveValueInteger(TIM_UPDATE_FREQUENCY, 
+                               ProfileKeys::ThermalInformationMapUpdateFrequency,
+                               settings.tim_update_frequency);
 #endif
+
 
   _changed |= changed;
 

@@ -28,5 +28,7 @@ Profile::Load(const ProfileMap &map, WeatherSettings &settings)
 
 #ifdef HAVE_HTTP
   map.Get(ProfileKeys::EnableThermalInformationMap, settings.enable_tim);
+  map.Get(ProfileKeys::ThermalInformationMapRange, settings.tim_range);
+  map.Get(ProfileKeys::ThermalInformationMapUpdateFrequency, settings.tim_update_frequency);
 #endif
 }
