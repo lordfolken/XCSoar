@@ -34,6 +34,40 @@ env:
   BOOST: boost_1_85_0
 
 jobs:
+  release:
+    name: "Create Release"
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: True
+
+      - name: parse changelog
+        run: |
+          TAG=$(echo ${{ github.ref }} | cut -f3 -d '/')
+          echo 'CHANGELOGENTRY<<EOF' >> $GITHUB_ENV
+          ./tools/changelog.sh $TAG >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+          if [[ $TAG == *-rc* ]]; then
+            echo "PRERELEASE=true" >> $GITHUB_ENV
+          else
+            echo "PRERELEASE=false" >> $GITHUB_ENV
+          fi
+        id: changelogentry
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Version ${{ github.ref }}
+          body: ${{ env.CHANGELOGENTRY }}
+          prerelease: ${{ env.PRERELEASE }}
+          
   build-ubuntu:
     runs-on: ubuntu-22.04
 
@@ -44,8 +78,8 @@ jobs:
       TARGET_EXT: ''
 
     steps:
-      - name: set vars for push
-        if: github.event_name == 'push'
+      - name: set vars for release
+        if: github.event_name == 'release'
         run: |
           echo "DEBUG=n" >> $GITHUB_ENV
           echo "TARGET_FINAL=xcsoar" >> $GITHUB_ENV
@@ -105,6 +139,18 @@ jobs:
         with:
           name: ${{ env.TARGET_FINAL }}-${{ env.git_hash }}${{ env.TARGET_EXT }}
           path: output/${{ env.TARGET }}/bin/${{ env.TARGET_BIN }}${{ env.TARGET_EXT }}
+
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: output/${{ env.TARGET }}/bin/${{ env.TARGET_BIN }}${{ env.TARGET_EXT }}
+          asset_name: ${{ env.TARGET_FINAL }}-${{ env.git_hash }}${{ env.TARGET_EXT }}
+          asset_content_type: application/zip
 
       - name: Deploy to Staging server
         if: |
@@ -192,8 +238,8 @@ jobs:
       TARGET_EXT: tgz
 
     steps:
-      - name: set vars for push
-        if: github.event_name == 'push'
+      - name: set vars for release
+        if: github.event_name == 'release'
         run: |
           echo "DEBUG=n" >> $GITHUB_ENV
 
@@ -284,8 +330,8 @@ jobs:
       NDK: r26d
 
     steps:
-      - name: set vars for push
-        if: github.event_name == 'push'
+      - name: set vars for release
+        if: github.event_name == 'release'
         run: |
           echo "DEBUG=n" >> $GITHUB_ENV
           echo "TARGET_FINAL=XCSoar" >> $GITHUB_ENV
@@ -385,8 +431,8 @@ jobs:
       TARGET_EXT: .exe
 
     steps:
-      - name: set vars for push
-        if: github.event_name == 'push'
+      - name: set vars for release
+        if: github.event_name == 'release'
         run: |
           echo "DEBUG=n" >> $GITHUB_ENV
           echo "TARGET_FINAL=XCSoar" >> $GITHUB_ENV
@@ -631,3 +677,4 @@ jobs:
           REMOTE_HOST: ${{ secrets.REPOSITORY_HOST }}
           REMOTE_USER: ${{ secrets.REPOSITORY_SSH_USER }}
           TARGET: ${{ secrets.REPOSITORY_REMOTE_PATH }}/testing/${{ env.TARGET }}/
+
