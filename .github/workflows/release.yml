@@ -12,6 +12,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: True
+
       - name: parse changelog
         run: |
           TAG=$(echo ${{ github.ref }} | cut -f3 -d '/')
@@ -24,6 +25,7 @@ jobs:
             echo "PRERELEASE=false" >> $GITHUB_ENV
           fi
         id: changelogentry
+
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
