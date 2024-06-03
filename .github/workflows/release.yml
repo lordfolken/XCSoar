@@ -18,6 +18,11 @@ jobs:
           echo 'CHANGELOGENTRY<<EOF' >> $GITHUB_ENV
           ./tools/changelog.sh $TAG >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
+          if [[ $TAG == *-rc* ]]; then
+            echo "PRERELEASE=true" >> $GITHUB_ENV
+          else
+            echo "PRERELEASE=false" >> $GITHUB_ENV
+          fi
         id: changelogentry
       - name: Create release
         id: create_release
@@ -28,3 +33,4 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Version ${{ github.ref }}
           body: ${{ env.CHANGELOGENTRY }}
+          prerelease: ${{ env.PRERELEASE }}
