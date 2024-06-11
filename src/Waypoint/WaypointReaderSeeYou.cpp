@@ -10,7 +10,9 @@
 #include "io/StringConverter.hpp"
 #include "io/BufferedCsvReader.hpp"
 
+#include <algorithm>
 #include <stdlib.h>
+#include <utility>
 
 using std::string_view_literals::operator""sv;
 
@@ -137,7 +139,7 @@ ParseStyle(std::string_view src, Waypoint::Type &type)
     break;
   case 10:
     type = Waypoint::Type::NDB;
-   break;
+    break;
   case 11:
     type = Waypoint::Type::TOWER;
     break;
@@ -175,7 +177,10 @@ ParseStyle(std::string_view src, Waypoint::Type &type)
   return true;
 }
 
-bool ParseSeeYou(WaypointFactory factory, Waypoints &waypoints, BufferedReader &reader) {
+bool
+ParseSeeYou(WaypointFactory factory, Waypoints &waypoints,
+            BufferedReader &reader)
+{
   StringConverter string_converter;
 
   // 2018: name, code, country, lat, lon, elev, style, rwydir, rwylen, freq, desc
@@ -197,33 +202,41 @@ bool ParseSeeYou(WaypointFactory factory, Waypoints &waypoints, BufferedReader &
   unsigned iDescription = 10;
 
   size_t params_num;
-  std::array<std::string_view,14> params;
+  std::array<std::string_view, 14> params;
 
   bool tasks { false };
+  bool first_line = true;
 
-  // Headers
-  {
-    params_num = ReadCsvRecord(reader, params);
-
-    // Empty file
-    if (params_num == 0)
-      return false;
-
-    // Newer cup/cupx specification adds rwwidth, shifts freq and desc right, and adds userdata, and pics
-    if ( params_num > iRWWidth &&
-         params[iRWWidth] == "rwwidth"sv ) {
-      iFrequency = 10;
-      iDescription = 11;
-    }
-  }
-
-  // Waypoints
   while ( true ) {
     params_num = ReadCsvRecord(reader, params);
 
+    // first line of file
+    if (first_line) {
+      first_line = false;
+
+      // Empty file
+      if (params_num == 0)
+        return false;
+
+      // Check whether this is a header (a line with only field names).
+      if (StringIsEqualIgnoreCase(params[iLatitude], "lat"sv))
+      {
+        /*
+         * Newer cup/cupx specification adds rwwidth, shifts freq and desc
+         * right, and adds userdata and pics.
+         */
+        if ( params_num > iRWWidth &&
+             params[iRWWidth] == "rwwidth"sv ) {
+          iFrequency = 10;
+          iDescription = 11;
+        }
+        continue;
+      }
+    }
+
     // Tasks section
     tasks = params_num == 1 &&
-      StringIsEqualIgnoreCase(params[0],"-----Related Tasks-----"sv);
+            StringIsEqualIgnoreCase(params[0], "-----Related Tasks-----"sv);
 
     // End of file or start of task section
     if ( !params_num || tasks )
