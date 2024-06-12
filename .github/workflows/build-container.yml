@@ -6,6 +6,15 @@ on:
       - 'ide/docker/**'
       - 'ide/provisioning/**'
       - '.github/workflows/build-container.yml'
+    paths-ignore:
+      - 'cloud/**'
+      - 'doc/**'
+      - 'fuzzer/**'
+      - 'kobo/**'
+      - 'python/**'
+      - '.github/workflows/build-container.yml'
+      - '.github/workflows/build-unix.yml'
+      - '.readthedocs.yaml'
 
 jobs:
   xcsoar-docker-env:
