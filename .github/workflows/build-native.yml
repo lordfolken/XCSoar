@@ -159,7 +159,10 @@ jobs:
               liblua5.4-dev \
               libxml-parser-perl \
               libasound2-dev \
-              libgles2-mesa-dev libegl1-mesa-dev
+              libgles2-mesa-dev libegl1-mesa-dev \
+              mpc-dev \
+              meson \
+              g++-arm-linux-gnueabihf
           elif [ ${{ matrix.os }} == 'macos-12' ]; then
             brew install \
               make \
