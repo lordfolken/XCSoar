@@ -85,16 +85,19 @@ jobs:
             target_bin: xcsoar
             target_final: xcsoar-debug
             target_ext: ''
+            target_upload: true
           - os: ubuntu-22.04
             target: KOBO
             target_bin: KoboRoot
             target_final: KoboRoot
             target_ext: .tgz
+            target_upload: true
           - os: ubuntu-22.04
             target: ANDROIDFAT
             target_bin: XCSoar-debug
             target_final: XCSoar-debug
             target_ext: .apk
+            target_upload: true
             ndk: r26d
           - os: ubuntu-22.04
             target: WIN64
@@ -102,8 +105,10 @@ jobs:
             target_final: XCSoar-debug
             target_ext: .exe
             container: debian:bookworm-slim
+            target_upload: true
           - os: macos-12
             target: OSX64
+            target_upload: false
 
     steps:
       - name: set vars for release
@@ -226,7 +231,9 @@ jobs:
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: |
+          startsWith(github.ref, 'refs/tags/v') &&
+          target_upload == "true"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
