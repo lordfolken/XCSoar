@@ -160,7 +160,7 @@ jobs:
               libxml-parser-perl \
               libasound2-dev \
               libgles2-mesa-dev libegl1-mesa-dev \
-              mpc-dev \
+              libmpc-dev \
               meson \
               g++-arm-linux-gnueabihf
           elif [ ${{ matrix.os }} == 'macos-12' ]; then
