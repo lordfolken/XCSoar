@@ -78,6 +78,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: release
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-22.04
@@ -108,6 +109,8 @@ jobs:
             target_upload: true
           - os: macos-12
             target: OSX64
+            target_bin: xcsoar
+            target_ext: ''
             target_upload: false
 
     steps:
