@@ -94,7 +94,7 @@ jobs:
             target_ext: .tgz
             target_upload: true
           - os: ubuntu-22.04
-            target: ANDROIDFAT
+            target: ANDROID
             target_bin: XCSoar-debug
             target_final: XCSoar
             target_ext: .apk
@@ -110,6 +110,7 @@ jobs:
           - os: macos-12
             target: OSX64
             target_bin: xcsoar
+            target_final: xcsoar
             target_ext: ''
             target_upload: false
 
@@ -170,7 +171,8 @@ jobs:
               libgles2-mesa-dev libegl1-mesa-dev \
               libmpc-dev \
               meson \
-              g++-arm-linux-gnueabihf
+              g++-arm-linux-gnueabihf \
+              ttf-bitstream-vera
           elif [ ${{ matrix.os }} == 'macos-12' ]; then
             brew install \
               make \
@@ -194,7 +196,7 @@ jobs:
 
       - name: Compile XCSoar
         run: |
-          if [ ${{ matrix.target }} == "ANDROIDFAT" ]; then
+          if [ ${{ matrix.target }} == "ANDROID" ]; then
             mkdir -p output/download
             cd output/download
             wget --quiet https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk }}-linux.zip
@@ -218,9 +220,11 @@ jobs:
               python3 \
               librsvg2-bin xsltproc \
               imagemagick gettext sox \
-              cmake ninja-build
+              cmake ninja-build \
             sudo sed -i -e '/extern.* __builtin/d' /usr/share/mingw-w64/include/intrin.h
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 everything
+          elif [ ${{ matrix.target }} == "KOBO" ]; then
+            make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 output/${{ matrix.target }}/bin/${{ matrix.target_bin }}${{ matrix.target_ext }}
           else
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 everything
           fi
