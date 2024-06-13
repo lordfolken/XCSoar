@@ -84,7 +84,7 @@ jobs:
           - os: ubuntu-22.04
             target: UNIX
             target_bin: xcsoar
-            target_final: xcsoar-debug
+            target_final: xcsoar
             target_ext: ''
             target_upload: true
           - os: ubuntu-22.04
@@ -96,14 +96,14 @@ jobs:
           - os: ubuntu-22.04
             target: ANDROIDFAT
             target_bin: XCSoar-debug
-            target_final: XCSoar-debug
+            target_final: XCSoar
             target_ext: .apk
             target_upload: true
             ndk: r26d
           - os: ubuntu-22.04
             target: WIN64
             target_bin: XCSoar.exe
-            target_final: XCSoar-debug
+            target_final: XCSoar
             target_ext: .exe
             container: debian:bookworm-slim
             target_upload: true
