@@ -84,18 +84,21 @@ jobs:
           - os: ubuntu-22.04
             target: UNIX
             target_bin: xcsoar
+            target_bin_path: bin
             target_final: xcsoar
             target_ext: ''
             target_upload: true
           - os: ubuntu-22.04
             target: KOBO
             target_bin: KoboRoot
+            target_bin_path: ''
             target_final: KoboRoot
             target_ext: .tgz
             target_upload: true
           - os: ubuntu-22.04
             target: ANDROID
             target_bin: XCSoar-debug
+            target_bin_path: bin
             target_final: XCSoar
             target_ext: .apk
             target_upload: true
@@ -103,6 +106,7 @@ jobs:
           - os: ubuntu-22.04
             target: WIN64
             target_bin: XCSoar.exe
+            target_bin_path: bin
             target_final: XCSoar
             target_ext: .exe
             container: debian:bookworm-slim
@@ -110,6 +114,7 @@ jobs:
           - os: macos-12
             target: OSX64
             target_bin: xcsoar
+            target_bin_path: bin
             target_final: xcsoar
             target_ext: ''
             target_upload: false
@@ -224,7 +229,7 @@ jobs:
             sudo sed -i -e '/extern.* __builtin/d' /usr/share/mingw-w64/include/intrin.h
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 everything
           elif [ ${{ matrix.target }} == "KOBO" ]; then
-            make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 output/${{ matrix.target }}/bin/${{ matrix.target_bin }}${{ matrix.target_ext }}
+            make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 output/${{ matrix.target }}/${{ matrix.target_bin }}${{ matrix.target_ext }}
           else
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 everything
           fi
@@ -233,7 +238,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target_final }}-${{ env.git_hash }}${{ matrix.target_ext }}
-          path: output/${{ matrix.target }}/bin/${{ matrix.target_bin }}${{ matrix.target_ext }}
+          path: output/${{ matrix.target }}/{{ matrix.target_path }}/${{ matrix.target_bin }}${{ matrix.target_ext }}
 
       - name: Upload Release Asset
         id: upload-release-asset
