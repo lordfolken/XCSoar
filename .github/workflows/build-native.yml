@@ -109,7 +109,7 @@ jobs:
             target_container: debian:bookworm-slim
           - os: ubuntu-22.04
             target: WIN64
-            target_bin: XCSoar.exe
+            target_bin: XCSoar
             target_bin_path: bin
             target_final: XCSoar
             target_ext: .exe
@@ -117,7 +117,7 @@ jobs:
             target_container: debian:bookworm-slim
           - os: ubuntu-22.04
             target: PC
-            target_bin: XCSoar.exe
+            target_bin: XCSoar
             target_bin_path: bin
             target_final: XCSoar
             target_ext: .exe
@@ -174,6 +174,7 @@ jobs:
             ./ide/provisioning/install-debian-packages.sh BASE
             if [ ${{ matrix.target }} = 'UNIX' ]; then
               ./ide/provisioning/install-debian-packages.sh LINUX
+              ./ide/provisioning/install-debian-packages.sh LIBINPUT_GBM
             fi
             if [ ${{ matrix.target }} = 'KOBO' ]; then
               ./ide/provisioning/install-debian-packages.sh LINUX
@@ -193,6 +194,7 @@ jobs:
               ./ide/provisioning/install-debian-packages.sh ARM
               ./ide/provisioning/install-debian-packages.sh LLVM
               ./ide/provisioning/install-debian-packages.sh ANDROID
+              ./ide/provisioning/install-android-tools.sh NDK
             fi
             ./ide/provisioning/install-debian-packages.sh CLEAN
           elif [ ${{ matrix.os }} = 'macos-12' ]; then
@@ -220,14 +222,7 @@ jobs:
       - name: Compile XCSoar
         run: |
           if [ ${{ matrix.target }} = "ANDROID" ]; then
-            mkdir -p output/download
-            cd output/download
-            wget https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk }}-linux.zip
-            unzip -q android-ndk-${{ matrix.ndk }}-linux.zip
-            rm android-ndk-${{ matrix.ndk }}-linux.zip
-            echo ANDROID_NDK_LATEST_HOME=$PWD/android-ndk-${{ matrix.ndk }} >> $GITHUB_ENV
-            cd ../../
-            make -j$(nproc) TARGET=${{ matrix.target }} ANDROID_NDK=$ANDROID_NDK_LATEST_HOME ANDROID_SDK=$ANDROID_HOME DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2
+            make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2
           elif [ ${{ matrix.target }} = "WIN64" ]; then
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 everything
           elif [ ${{ matrix.target }} = "PC" ]; then
@@ -258,7 +253,7 @@ jobs:
           asset_name: ${{ matrix.target_final }}-${{ matrix.target }}${{ matrix.target_ext }}
           asset_content_type: application/zip
 
-      - name: Deploy to Staging server
+      - name: Deploy to Download server - testing
         if: |
           github.repository == 'XCSoar/XCSoar' &&
           github.ref == 'refs/heads/master' &&
@@ -271,6 +266,23 @@ jobs:
           REMOTE_HOST: ${{ secrets.REPOSITORY_HOST }}
           REMOTE_USER: ${{ secrets.REPOSITORY_SSH_USER }}
           TARGET: ${{ secrets.REPOSITORY_REMOTE_PATH }}/testing/${{ matrix.target }}/
+
+      - name: Deploy to Download server - release
+        if: |
+          github.repository == 'XCSoar/XCSoar' &&
+          startsWith(github.ref, 'refs/tags/v') &&
+          github.event == 'push' &&
+          ${{ matrix.target_upload }} = "true"
+
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.REPOSITORY_SSH_KEY }}
+          ARGS: "-rltgoDzvO"
+          SOURCE: output/${{ matrix.target }}/${{ matrix.target_bin_path }}/${{ matrix.target_bin }}${{ matrix.target_ext }}
+          REMOTE_HOST: ${{ secrets.REPOSITORY_HOST }}
+          REMOTE_USER: ${{ secrets.REPOSITORY_SSH_USER }}
+          TARGET: ${{ secrets.REPOSITORY_REMOTE_PATH }}/testing/${{ matrix.target }}/
+
 
   test-windows:
     runs-on: windows-latest
