@@ -64,7 +64,8 @@ else
       ${ANDROID_REPO_URL}/android-ndk-${ANDROID_NDK_VERSION}-linux.zip \
       -O "${ANDROID_NDK_TMP_ZIP}"
 
-  cd ~/opt
+  mkdir -p ~/opt
+  cd ~/opt || exit 1
   unzip "${ANDROID_NDK_TMP_ZIP}"
 
   rm "${ANDROID_NDK_TMP_ZIP}"
