@@ -130,7 +130,7 @@ jobs:
           - os: macos-12
             target: OSX64
             target_bin: XCSoar
-            target_bin_path: ''
+            target_bin_path: bin
             target_final: XCSoar
             target_ext: .dmg
             target_upload: false
