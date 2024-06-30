@@ -179,6 +179,7 @@ jobs:
             if [ ${{ matrix.target }} = 'UNIX' ]; then
               ./ide/provisioning/install-debian-packages.sh LINUX
               ./ide/provisioning/install-debian-packages.sh LIBINPUT_GBM
+              ./ide/provisioning/install-debian-packages.sh DEBIAN
             fi
             if [ ${{ matrix.target }} = 'KOBO' ]; then
               ./ide/provisioning/install-debian-packages.sh LINUX
