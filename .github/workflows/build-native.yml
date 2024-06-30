@@ -255,9 +255,9 @@ jobs:
 
       - name: Deploy to Download server - testing
         if: |
-          github.repository == 'XCSoar/XCSoar' &&
-          github.ref == 'refs/heads/master' &&
-          github.event == 'push'
+          ${{ vars.GITHUB_REPOSITORY == 'XCSoar/XCSoar' }} &&
+          ${{ vars.GITUB_REF == 'refs/heads/master' }} &&
+          ${{ vars.GITHUB_EVENT == 'push' }}
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.REPOSITORY_SSH_KEY }}
@@ -269,9 +269,9 @@ jobs:
 
       - name: Deploy to Download server - release
         if: |
-          github.repository == 'XCSoar/XCSoar' &&
+          ${{ vars.GITHUB_REPOSITORY == 'XCSoar/XCSoar' }} &&
           startsWith(github.ref, 'refs/tags/v') &&
-          github.event == 'push' &&
+          ${{ vars.GITHUB_EVENT == 'push' }} &&
           ${{ matrix.target_upload }} = "true"
         uses: easingthemes/ssh-deploy@main
         env:
