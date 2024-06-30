@@ -48,18 +48,22 @@ jobs:
         with:
           submodules: True
 
-      - name: parse changelog
+      - name: Parse changelog
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          TAG=$(echo ${{ github.ref }} | cut -f3 -d '/')
+          TAG=$(echo "${{ github.ref }}" | cut -f3 -d '/')
+          echo "TAG=$TAG" >> $GITHUB_ENV
           echo 'CHANGELOGENTRY<<EOF' >> $GITHUB_ENV
-          ./tools/changelog.sh $TAG >> $GITHUB_ENV
+          ./tools/changelog.sh "$TAG" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
-          if [ $TAG = *-rc* ]; then
-            echo "PRERELEASE=true" >> $GITHUB_ENV
-          else
-            echo "PRERELEASE=false" >> $GITHUB_ENV
-          fi
+          case "$TAG" in
+            *-rc*)
+              echo "PRERELEASE=true" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "PRERELEASE=false" >> $GITHUB_ENV
+              ;;
+          esac
         id: changelogentry
 
       - name: Create release
