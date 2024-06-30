@@ -273,7 +273,6 @@ jobs:
           startsWith(github.ref, 'refs/tags/v') &&
           github.event == 'push' &&
           ${{ matrix.target_upload }} = "true"
-
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.REPOSITORY_SSH_KEY }}
