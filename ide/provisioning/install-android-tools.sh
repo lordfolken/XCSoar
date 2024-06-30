@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -11,6 +11,17 @@ ANDROID_REPO_URL=https://dl.google.com/android/repository
 ANDROID_SDK_DIR=~/opt/android-sdk-linux
 ANDROID_NDK_DIR=~/opt/android-ndk-${ANDROID_NDK_VERSION}
 
+if [ "$#" -eq 0 ]; then
+  sections_to_install=("SDK" "NDK")
+else
+  for arg in "$@"
+  do
+     section_to_install+=("$arg")
+  done
+fi
+
+
+install_sdk() {
 if [ -d "${ANDROID_SDK_DIR}"/build-tools/"${ANDROID_BUILD_TOOLS_VERSION}" ]
 then
   echo "Not installing Android SDK, because ${ANDROID_SDK_DIR}/build-tools/${ANDROID_BUILD_TOOLS_VERSION} exists already"
@@ -39,7 +50,9 @@ echo cmdline-tools/bin/sdkmanager --sdk_root="${ANDROID_SDK_DIR}" \
 cmdline-tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_DIR} \
     "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platforms;android-${ANDROID_PLATFORM_VERSION}"
 echo
+}
 
+install_ndk() {
 if [ -d "${ANDROID_NDK_DIR}" ]
 then
   echo Not installing Android NDK, because ${ANDROID_NDK_DIR} exists already
@@ -57,3 +70,18 @@ else
   rm "${ANDROID_NDK_TMP_ZIP}"
 fi
 echo
+}
+
+for section in "${sections_to_install[@]}"; do
+  case $section in
+    SDK)
+     install_sdk
+     ;;
+    NDK)
+     install_ndk
+    ;;
+    *)
+    echo "Unkown section: $section"
+    ;;
+  esac
+done
