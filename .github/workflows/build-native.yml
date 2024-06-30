@@ -129,9 +129,9 @@ jobs:
             target_container: debian:bookworm-slim
           - os: macos-12
             target: OSX64
-            target_bin: xcsoar
+            target_bin: XCSoar
             target_bin_path: ''
-            target_final: xcsoar
+            target_final: XCSoar
             target_ext: .dmg
             target_upload: false
             target_container: ''
