@@ -88,10 +88,10 @@ jobs:
         include:
           - os: ubuntu-22.04
             target: UNIX
-            target_bin: xcsoar
-            target_bin_path: bin
-            target_final: xcsoar
-            target_ext: ''
+            target_bin: xcsoar_${{ env.TAG }}-amd64
+            target_bin_path: ../../
+            target_final: xcsoar_
+            target_ext: deb
             target_upload: true
             target_container: debian:bookworm-slim
           - os: ubuntu-22.04
@@ -132,7 +132,7 @@ jobs:
             target_bin: xcsoar
             target_bin_path: bin
             target_final: xcsoar
-            target_ext: ''
+            target_ext: dmg
             target_upload: false
             target_container: ''
 
@@ -227,12 +227,16 @@ jobs:
         run: |
           if [ ${{ matrix.target }} = "ANDROID" ]; then
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2
+          elif [ ${{ matrix.target }} = "UNIX" ]; then
+            dpkg-buildpackage --jobs-force=$(nproc) --no-sign
           elif [ ${{ matrix.target }} = "WIN64" ]; then
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 everything
           elif [ ${{ matrix.target }} = "PC" ]; then
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 everything
           elif [ ${{ matrix.target }} = "KOBO" ]; then
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 output/${{ matrix.target }}/${{ matrix.target_bin }}${{ matrix.target_ext }}
+          elif [ ${{ matrix.target }} = "OSX" ]; then
+            make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 output/${{ matrix.target }}/${{ matrix.target_bin }}${{ matrix.target_ext }} dmg
           else
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 everything
           fi
