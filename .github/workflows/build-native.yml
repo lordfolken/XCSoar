@@ -88,7 +88,7 @@ jobs:
         include:
           - os: ubuntu-22.04
             target: UNIX
-            target_bin: xcsoar_${{ env.TAG }}-amd64
+            target_bin: xcsoar_$(echo "${{ github.ref }}" | cut -f3 -d '/')-amd64
             target_bin_path: ../../
             target_final: xcsoar_
             target_ext: deb
