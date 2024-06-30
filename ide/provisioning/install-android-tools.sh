@@ -16,7 +16,7 @@ if [ "$#" -eq 0 ]; then
 else
   for arg in "$@"
   do
-     section_to_install+=("$arg")
+     sections_to_install+=("$arg")
   done
 fi
 
