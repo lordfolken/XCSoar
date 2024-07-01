@@ -53,6 +53,7 @@ jobs:
         run: |
           TAG=$(echo "${{ github.ref }}" | cut -f3 -d '/')
           echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "::set-output name=TAG::$TAG"
           echo 'CHANGELOGENTRY<<EOF' >> $GITHUB_ENV
           ./tools/changelog.sh "$TAG" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
@@ -88,8 +89,8 @@ jobs:
         include:
           - os: ubuntu-22.04
             target: UNIX
-            target_bin: xcsoar_$(echo "${{ github.ref }}" | cut -f3 -d '/')-amd64
-            target_bin_path: ../../
+            target_bin: xcsoar_${{ needs.release.outputs.tags }}_amd64
+            target_bin_path: ../
             target_final: xcsoar_
             target_ext: deb
             target_upload: true
@@ -229,6 +230,9 @@ jobs:
           if [ ${{ matrix.target }} = "ANDROID" ]; then
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2
           elif [ ${{ matrix.target }} = "UNIX" ]; then
+            mkdir -p buildtmp
+            cp -r * buildtmp
+            cd buildtmp
             DEB_BUILD_OPTIONS=ccache dpkg-buildpackage --jobs-force=$(nproc) --no-sign
           elif [ ${{ matrix.target }} = "WIN64" ]; then
             make -j$(nproc) TARGET=${{ matrix.target }} DEBUG=${{ env.DEBUG }} USE_CCACHE=y V=2 everything
