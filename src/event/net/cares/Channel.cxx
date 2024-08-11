@@ -46,14 +46,12 @@ private:
 
 void Channel::sock_state_cb(void *data, ares_socket_t socket_fd, int readable, int writable)
 {
-  auto &channel= *(Channel *)data;
-
   unsigned events = 0;
-
     if (readable) events |= SocketEvent::READ;
     if (writable) events |= SocketEvent::WRITE;
 
     if (events != 0){
+      auto &channel= *static_cast<Channel*>(data);
       channel.sockets.emplace_front(channel, SocketDescriptor{socket_fd}, events);
     }
 }
