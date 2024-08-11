@@ -56,15 +56,6 @@ void Channel::sock_state_cb(void *data, ares_socket_t socket_fd, int readable, i
     if (events != 0){
       channel.sockets.emplace_front(channel, SocketDescriptor{socket_fd}, events);
     }
-
-  (void)channel;
-  (void)socket_fd;
-  (void)readable;
-  (void)writable;
-
-  printf("sock_state_cb: socket_fd %i read %i write %i count %li\n",socket_fd,readable,writable,
-         std::distance(std::begin(channel.sockets), std::end(channel.sockets)));
-
 }
 
 Channel::Channel(EventLoop &event_loop)
@@ -91,8 +82,6 @@ Channel::UpdateSockets() noexcept
 {
   timeout_event.Cancel();
 
-
-
   struct timeval timeout_buffer;
   const auto *t = ares_timeout(channel, nullptr, &timeout_buffer);
   if (t != nullptr) timeout_event.Schedule(ToSteadyClockDuration(*t));
@@ -101,7 +90,6 @@ Channel::UpdateSockets() noexcept
 void
 Channel::OnSocket(SocketDescriptor fd, unsigned events) noexcept
 {
-  printf("OnSocket was called\n");
   ares_socket_t read_fd = ARES_SOCKET_BAD, write_fd = ARES_SOCKET_BAD;
 
   if (events & (SocketEvent::READ | SocketEvent::IMPLICIT_FLAGS))
@@ -109,8 +97,6 @@ Channel::OnSocket(SocketDescriptor fd, unsigned events) noexcept
 
   if (events & (SocketEvent::WRITE | SocketEvent::IMPLICIT_FLAGS))
     write_fd = fd.Get();
-
-  printf("read_fd %i  write_fd %i\n", read_fd,write_fd);
 
   ares_process_fd(channel, read_fd, write_fd);
 
@@ -120,7 +106,6 @@ Channel::OnSocket(SocketDescriptor fd, unsigned events) noexcept
 void
 Channel::OnTimeout() noexcept
 {
-  printf("Timeout !!! \n");
   sockets.clear();
   ares_process_fd(channel, ARES_SOCKET_BAD, ARES_SOCKET_BAD);
   ScheduleUpdateSockets();
@@ -134,23 +119,12 @@ AsSocketAddress(const ares_addrinfo_node* node, F &&f)
   {
   case AF_INET:
   {
-
-    struct sockaddr_in *ipv4 = (struct sockaddr_in *)node->ai_addr;
-    char ipAddress[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &(ipv4->sin_addr), ipAddress, INET_ADDRSTRLEN);
-    printf("The IP address is: %s\n", ipAddress);
-
     f(SocketAddress(node->ai_addr, sizeof(sockaddr_in)));
   }
   break;
 
   case AF_INET6:
   {
-    struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)node->ai_addr;
-    char ipAddress[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET6, &(ipv6->sin6_addr), ipAddress, INET6_ADDRSTRLEN);
-    printf("The IP address is: %s\n", ipAddress);
-
     f(SocketAddress(node->ai_addr, sizeof(sockaddr_in6)));
   }
   break;
@@ -177,7 +151,6 @@ public:
   void Start(ares_channel _channel, const char *name, int family) noexcept
   {
     const struct ares_addrinfo_hints hints = { ARES_AI_NOSORT, family, 0, 0 };
-    printf("C-ARES requesting info for %s\n",name);
     ares_getaddrinfo(_channel, name, NULL, &hints, HostCallback,this);
   }
 
@@ -197,11 +170,8 @@ private:
   static void HostCallback(void *arg, int status, int,
                             struct ares_addrinfo *result) noexcept
   {
-    printf("Called callback with result\n");
-
     auto &request = *(Request *)arg;
     request.HostCallback(status, result);
-
   }
 };
 
@@ -260,9 +230,9 @@ void
 Channel::Lookup(const char *name, Handler &handler,
                 CancellablePointer &cancel_ptr) noexcept
 {
-  printf ("Name requested to resolve: %s\n",name);
-  auto *request = new Request(handler, 1, cancel_ptr);
-  request->Start(channel, name, AF_UNSPEC);
+  auto *request = new Request(handler, 2, cancel_ptr);
+  request->Start(channel, name, AF_INET);
+  request->Start(channel, name, AF_INET6);
   UpdateSockets();
 }
 
