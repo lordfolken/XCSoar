@@ -2,7 +2,6 @@
 // Copyright CM4all GmbH
 // author: Max Kellermann <mk@cm4all.com>
 
-#include <arpa/inet.h>
 
 #include "Channel.hxx"
 #include "Handler.hxx"
