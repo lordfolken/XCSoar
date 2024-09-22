@@ -23,6 +23,7 @@ enum ControlIndex {
   AirfieldFile,
   FlarmFile,
   RaspFile,
+  ChecklistFile,
 };
 
 class SiteConfigPanel final : public RowFormWidget {
@@ -95,6 +96,10 @@ SiteConfigPanel::Prepare([[maybe_unused]] ContainerWindow &parent, [[maybe_unuse
   AddFile(_T("RASP"), nullptr,
           ProfileKeys::RaspFile, _T("*-rasp*.dat\0"),
           FileType::RASP);
+
+  AddFile(_T("Checklist"),
+          _("A formatted textfile to display several checklists."),
+          ProfileKeys::ChecklistFile, _T("*.txt\0"), FileType::CHECKLIST);
 }
 
 bool
@@ -118,9 +123,11 @@ SiteConfigPanel::Save(bool &_changed) noexcept
 
   RaspFileChanged = SaveValueFileReader(RaspFile, ProfileKeys::RaspFile);
 
+  ChecklistFileChanged =
+      SaveValueFileReader(ChecklistFile, ProfileKeys::ChecklistFile);
+
   changed = WaypointFileChanged || AirfieldFileChanged || MapFileChanged ||
-    FlarmFileChanged ||
-    RaspFileChanged;
+            FlarmFileChanged || RaspFileChanged || ChecklistFileChanged;
 
   _changed |= changed;
 
