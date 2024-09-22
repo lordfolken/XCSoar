@@ -20,4 +20,5 @@ BraceWrapping:
   BeforeElse: false
   AfterControlStatement: false
   AfterFunction: true
+  AfterClass: true
 BreakBeforeBraces: Custom
