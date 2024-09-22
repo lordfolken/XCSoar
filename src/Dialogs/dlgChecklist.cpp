@@ -3,19 +3,22 @@
 
 #include "Dialogs/Dialogs.h"
 #include "Dialogs/WidgetDialog.hpp"
+#include "Language/Language.hpp"
+#include "LocalPath.hpp"
+#include "Look/DialogLook.hpp"
+#include "Profile/Keys.hpp"
+#include "Profile/Profile.hpp"
+#include "UIGlobals.hpp"
 #include "Widget/ArrowPagerWidget.hpp"
 #include "Widget/LargeTextWidget.hpp"
-#include "Look/DialogLook.hpp"
-#include "UIGlobals.hpp"
-#include "util/StaticString.hxx"
-#include "util/StringSplit.hxx"
-#include "util/StringCompare.hxx"
-#include "util/tstring.hpp"
+#include "io/BufferedReader.hxx"
 #include "io/DataFile.hpp"
 #include "io/Reader.hxx"
-#include "io/BufferedReader.hxx"
 #include "io/StringConverter.hpp"
-#include "Language/Language.hpp"
+#include "util/StaticString.hxx"
+#include "util/StringCompare.hxx"
+#include "util/StringSplit.hxx"
+#include "util/tstring.hpp"
 
 #include <string>
 #include <vector>
@@ -52,7 +55,21 @@ LoadChecklist() noexcept
 try {
   Checklist c;
 
-  auto file_reader = OpenDataFile(_T(XCSCHKLIST));
+  // Attempt to get the checklist file path from the profile
+  auto path = Profile::GetPath(ProfileKeys::ChecklistFile);
+
+  // If no path is configured, fall back to default
+  if (path == nullptr) {
+    auto file_reader = OpenDataFile(_T(XCSCHKLIST));
+  } else {
+    auto file_reader = OpenDataFile(std::move(path));
+  }
+
+  if (!file_reader) {
+    // If the file couldn't be opened, return an empty checklist
+    return {};
+  }
+
   BufferedReader reader{*file_reader};
   StringConverter string_converter{Charset::UTF8};
 
