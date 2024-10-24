@@ -32,7 +32,7 @@ install_base() {
     git quilt zip \
     m4 automake wget \
     pkg-config cmake ninja-build ccache \
-    ca-certificates
+    ca-certificates make
   echo
 }
 
@@ -51,7 +51,7 @@ install_manual() {
 
 install_linux() {
   echo Installing dependencies for the Linux target...
-  apt-get install ${APTOPTS[*]} make g++ \
+  apt-get install ${APTOPTS[*]} g++ \
     zlib1g-dev \
     libfmt-dev \
     libdbus-1-dev \
