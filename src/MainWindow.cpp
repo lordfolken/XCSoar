@@ -760,7 +760,7 @@ MainWindow::RunTimer() noexcept
   if (CommonInterface::GetUISettings().thermal_assistant_position == UISettings::ThermalAssistantPosition::OFF) {
     thermal_assistant.Clear();
   } else if (!CommonInterface::Calculated().circling ||
-             InputEvents::IsFlavour(_T("TA"))) {
+             InputEvents::IsFlavour(_T("TAX"))) {
     thermal_assistant.Hide();
   } else if (!HasDialog()) {
     if (!thermal_assistant.IsDefined())
