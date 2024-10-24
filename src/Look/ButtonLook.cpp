@@ -4,6 +4,8 @@
 #include "ButtonLook.hpp"
 #include "Colors.hpp"
 #include "Asset.hpp"
+#include "FontDescription.hpp"
+#include "Screen/Layout.hpp"
 
 void
 ButtonLook::Initialise(const Font &_font)
