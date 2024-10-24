@@ -1065,7 +1065,7 @@ DoDeclare(const struct Declaration &declaration,
           OperationEnvironment &env)
 {
   StaticString<60> text;
-  text.Format(_T("%s: %s."), _("Sending declaration"), driver.display_name);
+  text.Format(_T("%s: %s."), _("Sending declaration foobar"), driver.display_name);
   env.SetText(text);
 
   bool result = device != nullptr && device->Declare(declaration, home, env);
