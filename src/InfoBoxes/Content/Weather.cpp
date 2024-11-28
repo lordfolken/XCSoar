@@ -2,20 +2,21 @@
 // Copyright The XCSoar Project
 
 #include "InfoBoxes/Content/Weather.hpp"
+#include "Formatter/AngleFormatter.hpp"
+#include "Formatter/UserUnits.hpp"
+#include "InfoBoxes/Data.hpp"
 #include "InfoBoxes/Panel/Panel.hpp"
 #include "InfoBoxes/Panel/WindEdit.hpp"
-#include "InfoBoxes/Data.hpp"
 #include "Interface.hpp"
-#include "Units/Units.hpp"
 #include "Language/Language.hpp"
-#include "Formatter/UserUnits.hpp"
-#include "Formatter/AngleFormatter.hpp"
-#include "Screen/Layout.hpp"
-#include "ui/dim/Rect.hpp"
+#include "Look/Look.hpp"
 #include "Renderer/RadarRenderer.hpp"
 #include "Renderer/WindArrowRenderer.hpp"
+#include "Screen/Layout.hpp"
 #include "UIGlobals.hpp"
-#include "Look/Look.hpp"
+#include "Units/Units.hpp"
+#include "ui/canvas/Brush.hpp"
+#include "ui/dim/Rect.hpp"
 
 #include <tchar.h>
 
@@ -130,6 +131,43 @@ UpdateInfoBoxWindBearing(InfoBoxData &data) noexcept
 }
 
 void
+UpdateInfoBoxInstWindSpeed(InfoBoxData &data) noexcept
+{
+  const auto &info = CommonInterface::Basic();
+  if (!info.external_instantaneous_wind_available) {
+    data.SetInvalid();
+    return;
+  }
+
+  // Set Value
+  data.FmtValue(_T("{:2.0f}"),
+                Units::ToUserWindSpeed(info.external_instantaneous_wind.norm));
+
+  // Set Unit
+  data.SetValueUnit(Units::current.wind_speed_unit);
+
+  // Set Comment
+  data.SetComment(info.external_instantaneous_wind.bearing);
+}
+
+void
+UpdateInfoBoxInstWindBearing(InfoBoxData &data) noexcept
+{
+  const auto &info = CommonInterface::Basic();
+  if (!info.external_instantaneous_wind_available) {
+    data.SetInvalid();
+    return;
+  }
+
+  data.SetValue(info.external_instantaneous_wind.bearing);
+
+  TCHAR buffer[16];
+  FormatUserWindSpeed(info.external_instantaneous_wind.norm, buffer, true,
+                      false);
+  data.SetComment(buffer);
+}
+
+void
 UpdateInfoBoxHeadWind(InfoBoxData &data) noexcept
 {
   const DerivedInfo &info = CommonInterface::Calculated();
@@ -156,10 +194,8 @@ UpdateInfoBoxHeadWindSimplified(InfoBoxData &data) noexcept
 
   auto value = basic.true_airspeed - basic.ground_speed;
 
-  // Set Value
   data.FmtValue(_T("{:2.0f}"), Units::ToUserWindSpeed(value));
 
-  // Set Unit
   data.SetValueUnit(Units::current.wind_speed_unit);
 }
 
@@ -187,13 +223,11 @@ InfoBoxContentWindArrow::Update(InfoBoxData &data) noexcept
 }
 
 void
-InfoBoxContentWindArrow::OnCustomPaint(Canvas &canvas,
-                                       const PixelRect &rc) noexcept
+PaintWindArrow(Canvas &canvas, const PixelRect &rc, const SpeedVector &wind,
+               const Brush &brush) noexcept
 {
   constexpr unsigned arrow_width = 6;
   constexpr unsigned arrow_tail_length = 3;
-
-  const auto &info = CommonInterface::Calculated();
 
   const unsigned scale = Layout::Scale(100U);
 
@@ -204,17 +238,36 @@ InfoBoxContentWindArrow::OnCustomPaint(Canvas &canvas,
   // by the DrawArrow() function again
   const unsigned size = radar_renderer.GetRadius() * 100 / scale;
 
-  auto angle = info.wind.bearing - CommonInterface::Basic().attitude.heading;
+  auto angle = wind.bearing - CommonInterface::Basic().attitude.heading;
 
-  const int length =
-    std::min(size, std::max(10u, uround(4 * info.wind.norm)));
+  const int length = std::min(size, std::max(10u, uround(4 * wind.norm)));
 
   const int offset = -length / 2;
 
-  auto style = CommonInterface::GetMapSettings().wind_arrow_style;
+  const auto style = CommonInterface::GetMapSettings().wind_arrow_style;
 
   WindArrowRenderer renderer(UIGlobals::GetLook().wind_arrow_info_box);
-  renderer.DrawArrow(canvas, radar_renderer.GetCenter(), angle,
-                     arrow_width, length, arrow_tail_length,
-                     style, offset, scale);
+  renderer.DrawArrow(canvas, radar_renderer.GetCenter(), angle, arrow_width,
+                     length, arrow_tail_length, style, offset, scale, brush);
+}
+
+void
+InfoBoxContentWindArrow::OnCustomPaint(Canvas &canvas,
+                                       const PixelRect &rc) noexcept
+{
+  const auto &info = CommonInterface::Calculated();
+  const auto &basic = CommonInterface::Basic();
+  auto rel_wind = info.wind;
+  const auto &look = UIGlobals::GetLook().wind_arrow_info_box;
+  rel_wind.bearing -= basic.attitude.heading;
+
+  PaintWindArrow(canvas, rc, rel_wind,
+                 info.wind_source == DerivedInfo::WindSource::EXTERNAL
+                     ? look.arrow_brush_extern
+                     : look.arrow_brush);
+  if (basic.external_instantaneous_wind_available) {
+    rel_wind = basic.external_instantaneous_wind;
+    rel_wind.bearing -= basic.attitude.heading;
+    PaintWindArrow(canvas, rc, rel_wind, look.arrow_brush_instantaneous);
+  }
 }

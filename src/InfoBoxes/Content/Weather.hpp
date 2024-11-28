@@ -5,6 +5,9 @@
 
 #include "InfoBoxes/Content/Base.hpp"
 
+struct SpeedVector;
+class Brush;
+
 void
 UpdateInfoBoxHumidity(InfoBoxData &data) noexcept;
 
@@ -26,11 +29,18 @@ UpdateInfoBoxWindSpeed(InfoBoxData &data) noexcept;
 void
 UpdateInfoBoxWindBearing(InfoBoxData &data) noexcept;
 
+void UpdateInfoBoxInstWindSpeed(InfoBoxData &data) noexcept;
+
+void UpdateInfoBoxInstWindBearing(InfoBoxData &data) noexcept;
+
 void
 UpdateInfoBoxHeadWind(InfoBoxData &data) noexcept;
 
 void
 UpdateInfoBoxHeadWindSimplified(InfoBoxData &data) noexcept;
+
+void PaintWindArrow(Canvas &canvas, const PixelRect &rc,
+                    const SpeedVector &wind, const Brush &brush) noexcept;
 
 class InfoBoxContentWindArrow: public InfoBoxContent
 {

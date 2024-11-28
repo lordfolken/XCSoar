@@ -15,6 +15,14 @@ WindArrowLook::Initialise(const Font &_font, bool inverse)
                    : (HasColors() ? DarkColor(COLOR_GRAY) : COLOR_BLACK));
   shaft_pen.Create(Pen::DASH2, Layout::ScalePenWidth(1), inverse ? COLOR_WHITE : COLOR_BLACK);
   arrow_brush.Create(IsDithered() ? COLOR_DARK_GRAY : ColorWithAlpha(COLOR_GRAY, ALPHA_OVERLAY));
+  Color color_extern(LightColor(COLOR_BLUE)); // a light blue
+  arrow_brush_extern.Create(IsDithered()
+                                ? color_extern
+                                : ColorWithAlpha(color_extern, ALPHA_OVERLAY));
+  Color color_instantaneous(LightColor(COLOR_GREEN)); // a light green
+  arrow_brush_instantaneous.Create(
+      IsDithered() ? color_instantaneous
+                   : ColorWithAlpha(color_instantaneous, ALPHA_OVERLAY));
 
   font = &_font;
 }

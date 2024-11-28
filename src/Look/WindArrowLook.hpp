@@ -12,6 +12,8 @@ struct WindArrowLook
 {
   Pen arrow_pen, shaft_pen;
   Brush arrow_brush;
+  Brush arrow_brush_instantaneous;
+  Brush arrow_brush_extern;
 
   const Font *font;
 
