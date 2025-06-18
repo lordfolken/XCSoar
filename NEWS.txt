@@ -1,10 +1,11 @@
-Version 7.44 - not yet released
+Version 7.44 - 2025-06-18
 * WaypointDetails
   - Add pan capability to the waypoint details image
 * calculations
   - remove FFVV NetCoupe
   - update sprint/league time window to 2 hours (as per OLC and DMSt rules)
   - update OLC League calculation to latest ruleset
+  - allow racing tasks to use the FAI finish height
 * tracking
   - xcsoar-cloud-service: rebuild service, new domain cloud.xcsoar.org
 * data files
@@ -15,6 +16,7 @@ Version 7.44 - not yet released
   - openair: support for openair 2.0 format
   - openair: parse transponder codes for airspaces
   - openair: parse station names for airspaces
+  - openair: disable FIR warnings
 * ui
   - streamlined, and optimized icons
   - apply dark mode settings to thermal assistant
@@ -42,6 +44,8 @@ Version 7.44 - not yet released
   - show station names in airspace details dialog
   - show squawk code in airspace details dialog
   - ability to send squawk code from airspace details dialog to transponder
+  - trackline: dynamic scaling for high dpi displays
+  - possibilty to configure zoom and menu buttons as touch screen overlays
 * Android
   - fix crash on startup when loading icons on ldpi screens
   - update 'white list' of USB devices with one more VID/PID pair for SoftRF Academy
@@ -50,6 +54,8 @@ Version 7.44 - not yet released
   - battery: prevent shutdown on devices without battery
 * Windows
   - Popupmessages are now shown with full text again
+* IOS
+  - experimental iphone and ipad release
 * devices
   - Add driver for Condor 3
   - Add driver for LX Navigation Eos / Era variometers
@@ -62,10 +68,11 @@ Version 7.44 - not yet released
   - LXNAV: Overload formula, use reference mass instead of dry mass
   - OpenVario: Overload formula, use reference mass instead of dry mass
   - Vaulter: use fraction instead of overload for ballast
-  - Devices: Switch to manual MC when set via external Device
   - AirControlDisplay: Read-out transponder mode
   - Larus: Protocol 0.1.4 add OAT,GLoad,Circling/Cruise
   - SerialPorts: add 230400 baud support
+  - LX/Nano: list flights to download in reverse date
+
 * Polar:
   - LS8-15m: default polar, set to values according to flight manual
 * Weglide:
