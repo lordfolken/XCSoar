@@ -6,6 +6,7 @@
 #include "Error.hxx"
 #include "Handler.hxx"
 #include "event/SocketEvent.hxx"
+#include "LogFile.hpp"
 #include "net/SocketAddress.hxx"
 #include "time/Convert.hxx"
 #include "util/Cancellable.hxx"
@@ -134,6 +135,7 @@ public:
   void SetSelf(std::shared_ptr<Request> s) noexcept { self = std::move(s); }
 
   void Start(ares_channel _channel, const char *name, int family) noexcept {
+    LogFormat("DNS Request: name=%s family=%d pending=%u", name, family, pending);
     const struct ares_addrinfo_hints hints{ARES_AI_NOSORT, family, 0, 0};
     ares_getaddrinfo(_channel, name, nullptr, &hints, HostCallback, this);
   }
@@ -143,33 +145,59 @@ private:
     assert(handler != nullptr);
     assert(pending > 0);
     handler = nullptr;
-    if (--pending == 0) self.reset();
+    // Do not decrement pending here; let HostCallback handle it
   }
 
   void HostCallback(int status, struct ares_addrinfo *addressinfo) noexcept {
-    std::unique_ptr<ares_addrinfo, decltype(&ares_freeaddrinfo)>
-        info(addressinfo, ares_freeaddrinfo);
+    LogFormat("DNS Callback: status=%d addressinfo=%p pending=%u cancelled=%d", status, (void*)addressinfo, pending, !handler);
+    std::unique_ptr<ares_addrinfo, decltype(&ares_freeaddrinfo)> info(addressinfo, ares_freeaddrinfo);
 
-    if (!handler) {
-      if (pending == 0) self.reset();
+    const bool was_cancelled = !handler;
+
+    // Always decrement pending when a callback fires
+    if (was_cancelled) {
+      LogFormat("DNS Callback: request was cancelled");
+      if (--pending == 0)
+        self.reset();
       return;
     }
 
     if (status != ARES_SUCCESS) {
+      LogFormat("DNS Callback: error status");
       if (!success && --pending == 0) {
+        LogFormat("DNS Callback: error, no success");
         handler->OnCaresError(std::make_exception_ptr(Error(status, "ares_getaddrinfo() failed")));
         self.reset();
+      } else if (success && --pending == 0) {
+        LogFormat("DNS Callback: error, but had previous success");
+        handler->OnCaresSuccess();
+        self.reset();
+      } else {
+        // Had error but still waiting for other callback
+        // pending already decremented above
       }
       return;
     }
 
     if (addressinfo) {
+      LogFormat("DNS Callback: got addressinfo");
       success = true;
       for (auto node = addressinfo->nodes; node; node = node->ai_next)
         AsSocketAddress(node, [handler = handler](SocketAddress addr) { handler->OnCaresAddress(addr); });
-    } else if (--pending == 0) {
-      handler->OnCaresError(std::make_exception_ptr(std::runtime_error("ares_getaddrinfo() failed")));
-      self.reset();
+      if (--pending == 0) {
+        LogFormat("DNS Callback: success, all pending done");
+        handler->OnCaresSuccess();
+        self.reset();
+      }
+      return;
+    } else {
+      LogFormat("DNS Callback: addressinfo is null, treating as error");
+      // Treat null addressinfo as DNS error, even if status == ARES_SUCCESS
+      if (--pending == 0) {
+        handler->OnCaresError(std::make_exception_ptr(Error(status, "ares_getaddrinfo() returned no addresses")));
+        self.reset();
+      }
+      return;
     }
   }
 
