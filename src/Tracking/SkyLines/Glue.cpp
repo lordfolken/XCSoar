@@ -11,6 +11,10 @@
 #include "io/async/GlobalAsioThread.hpp"
 #include "util/ByteOrder.hxx"
 #include "util/Compiler.h"
+#include "LogFile.hpp"
+#include "Formatter/GeoPointFormatter.hpp"
+#include "Geo/CoordinateFormat.hpp"
+#include "util/ConvertString.hpp"
 
 #include <cassert>
 
@@ -105,8 +109,8 @@ SkyLinesTracking::Glue::SendCloudFix(const NMEAInfo &basic,
     return;
   }
 
-  if (!basic.location_available || !calculated.flight.flying)
-    return;
+  //if (!basic.location_available || !calculated.flight.flying)
+  //  return;
 
   if (!IsConnected())
     return;
@@ -148,20 +152,38 @@ void
 SkyLinesTracking::Glue::Tick(const NMEAInfo &basic,
                              const DerivedInfo &calculated)
 {
-  if (basic.location_available && !basic.gps.real)
-    /* disable in simulator/replay */
-    return;
+  //if (basic.location_available && !basic.gps.real)
+  ///  /* disable in simulator/replay */
+  //  return;
 
   if (client.IsConnected()) {
     SendFixes(basic);
 
     if (traffic_enabled &&
-        traffic_clock.CheckAdvance(basic.clock, minutes(1)))
-      client.SendTrafficRequest(true, true, near_traffic_enabled);
+        traffic_clock.CheckAdvance(basic.clock, seconds(5)))
+      client.SendTrafficRequest(true, true, true);  // Force near=true
   }
 
   if (cloud_client.IsConnected()) {
     SendCloudFix(basic, calculated);
+
+    if (traffic_clock.CheckAdvance(basic.clock, seconds(5))) {
+      cloud_client.SendTrafficRequest(true, true, true);  // Force near=true
+      if (basic.location_available) {
+        const auto formatted = FormatGeoPoint(basic.location,
+                                               CoordinateFormat::DDMMSS);
+        const WideToUTF8Converter location_str(formatted.c_str());
+        const int altitude = basic.gps_altitude_available
+          ? iround(basic.gps_altitude)
+          : (basic.pressure_altitude_available
+             ? iround(basic.pressure_altitude)
+             : 0);
+        LogFormat("Traffic request sent to cloud server at %s altitude %dm",
+                  location_str.c_str(), altitude);
+      } else {
+        LogFormat("Traffic request sent to cloud server (no location)");
+      }
+    }
 
     if (thermal_enabled &&
         thermal_clock.CheckAdvance(basic.clock, minutes(1)))
@@ -177,7 +199,8 @@ SkyLinesTracking::Glue::SetSettings(const Settings &settings)
   if (settings.cloud.enabled == TriState::TRUE && settings.cloud.key != 0) {
     cloud_client.SetKey(settings.cloud.key);
     if (!cloud_client.IsDefined()) {
-      cloud_client.Open(*global_cares_channel, "cloud.xcsoar.org");
+      cloud_client.Open(*global_cares_channel, "127.0.0.1");
+      LogFormat("cloud");
     }
   } else
     cloud_client.Close();
@@ -198,7 +221,7 @@ SkyLinesTracking::Glue::SetSettings(const Settings &settings)
   }
 
   traffic_enabled = settings.traffic_enabled;
-  near_traffic_enabled = settings.near_traffic_enabled;
+  near_traffic_enabled = true;  // Force enabled for OGN traffic support
 
   roaming = settings.roaming;
 }

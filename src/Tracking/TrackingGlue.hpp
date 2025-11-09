@@ -36,7 +36,11 @@ public:
 private:
   /* virtual methods from SkyLinesTracking::Handler */
   virtual void OnTraffic(uint32_t pilot_id, unsigned time_of_day_ms,
-                         const GeoPoint &location, int altitude) override;
+                         const GeoPoint &location, int altitude,
+                         uint32_t flarm_id = 0,
+                         unsigned track = 0,
+                         double turn_rate = 0,
+                         FlarmTraffic::AircraftType aircraft_type = FlarmTraffic::AircraftType::UNKNOWN) override;
     virtual void OnUserName(uint32_t user_id, const TCHAR *name) override;
   void OnWave(unsigned time_of_day_ms,
               const GeoPoint &a, const GeoPoint &b) override;

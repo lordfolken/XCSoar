@@ -12,6 +12,7 @@
 #include "Asset.hpp"
 
 #include <cassert>
+#include <algorithm>
 
 bool
 WndProperty::OnKeyCheck(unsigned key_code) const noexcept
@@ -321,9 +322,33 @@ WndProperty::OnPaint(Canvas &canvas) noexcept
 
   canvas.DrawFilledRectangle(edit_rc, background_color);
 
-  canvas.SelectHollowBrush();
-  canvas.SelectBlackPen();
-  canvas.DrawRectangle(edit_rc);
+  // Draw 3D inset border for read-only fields
+  if (IsReadOnly() && !pressed) {
+    // Scale pen width and border offset for DPI
+    const unsigned pen_width = std::max(1u, Layout::ScalePenWidth(1u));
+    const unsigned border_offset = std::max(1u, Layout::Scale(1u));
+    
+    // Create inset (sunken) effect: dark on top/left, bright on bottom/right
+    Pen dark(pen_width, Color(128, 128, 128));
+    Pen bright(pen_width, Color(240, 240, 240));
+    
+    // Draw dark shadow lines (top and left)
+    canvas.Select(dark);
+    canvas.DrawTwoLinesExact({edit_rc.left, edit_rc.bottom - (int)border_offset},
+                             {edit_rc.left, edit_rc.top},
+                             {edit_rc.right - (int)border_offset, edit_rc.top});
+    
+    // Draw bright highlight lines (bottom and right)
+    canvas.Select(bright);
+    canvas.DrawTwoLinesExact({edit_rc.left + (int)border_offset, edit_rc.bottom - (int)border_offset},
+                             {edit_rc.right - (int)border_offset, edit_rc.bottom - (int)border_offset},
+                             {edit_rc.right - (int)border_offset, edit_rc.top + (int)border_offset});
+  } else {
+    // Regular border for editable fields
+    canvas.SelectHollowBrush();
+    canvas.SelectBlackPen();
+    canvas.DrawRectangle(edit_rc);
+  }
 
   if (!value.empty()) {
     canvas.SetTextColor(text_color);

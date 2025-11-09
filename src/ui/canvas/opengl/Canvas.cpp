@@ -29,10 +29,6 @@
 #include "util/ConvertString.hpp"
 #endif
 
-#ifndef NDEBUG
-#include "util/UTF8.hpp"
-#endif
-
 #include <cassert>
 
 AllocatedArray<BulkPixelPoint> Canvas::vertex_buffer;
@@ -545,7 +541,8 @@ Canvas::CalcTextSize(tstring_view text) const noexcept
   const WideToUTF8Converter text2(text);
 #else
   const std::string_view text2 = text;
-  assert(ValidateUTF8(text));
+  if (!ValidateUTF8(text))
+    return { 0, 0 };
 #endif
 
   PixelSize size = { 0, 0 };
@@ -578,7 +575,8 @@ Canvas::DrawText(PixelPoint p, tstring_view text) noexcept
   const WideToUTF8Converter text2(text);
 #else
   const std::string_view text2 = text;
-  assert(ValidateUTF8(text));
+  if (!ValidateUTF8(text))
+    return;
 #endif
 
   assert(offset == OpenGL::translate);
@@ -612,7 +610,8 @@ Canvas::DrawTransparentText(PixelPoint p, tstring_view text) noexcept
   const WideToUTF8Converter text2(text);
 #else
   const std::string_view text2 = text;
-  assert(ValidateUTF8(text));
+  if (!ValidateUTF8(text))
+    return;
 #endif
 
   assert(offset == OpenGL::translate);
@@ -644,7 +643,8 @@ Canvas::DrawClippedText(PixelPoint p, PixelSize size,
   const WideToUTF8Converter text2(text);
 #else
   const std::string_view text2 = text;
-  assert(ValidateUTF8(text));
+  if (!ValidateUTF8(text))
+    return;
 #endif
 
   assert(offset == OpenGL::translate);

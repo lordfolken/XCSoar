@@ -45,7 +45,10 @@ public:
   void Tick(const NMEAInfo &basic, const DerivedInfo &calculated);
 
   void RequestUserName(uint32_t user_id) {
-    client.SendUserNameRequest(user_id);
+    // Only request username if SkyLines client is enabled and connected
+    // (xcsoar-cloud doesn't support user names)
+    if (client.IsEnabled() && client.IsConnected())
+      client.SendUserNameRequest(user_id);
   }
 
 private:

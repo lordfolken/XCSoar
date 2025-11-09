@@ -9,12 +9,22 @@
 #include "util/ByteOrder.hxx"
 #include "Math/Angle.hpp"
 #include "Geo/GeoPoint.hpp"
+#include "FLARM/Traffic.hpp"
 #include "event/Call.hxx"
 #include "net/StaticSocketAddress.hxx"
 #include "net/UniqueSocketDescriptor.hxx"
+#include "net/ToString.hxx"
 #include "util/CRC16CCITT.hpp"
 #include "util/UTF8.hpp"
 #include "util/ConvertString.hpp"
+#include "LogFile.hpp"
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
 
 #include <span>
 #include <string>
@@ -133,21 +143,53 @@ inline void
 SkyLinesTracking::Client::OnTrafficReceived(const TrafficResponsePacket &packet,
                                             size_t length)
 {
-  if (length < sizeof(packet))
+  if (length < sizeof(packet)) {
+    LogFormat("SkyLines: TRAFFIC_RESPONSE packet too short (%zu < %zu), dropping",
+              length, sizeof(packet));
     return;
+  }
 
   const unsigned n = packet.traffic_count;
+  LogFormat("SkyLines: TRAFFIC_RESPONSE contains %u traffic entries", n);
+  
   const std::span<const TrafficResponsePacket::Traffic>
     list((const TrafficResponsePacket::Traffic *)(&packet + 1), n);
 
-  if (length != sizeof(packet) + n * sizeof(list.front()))
+  const size_t expected_length = sizeof(packet) + n * sizeof(list.front());
+  if (length != expected_length) {
+    LogFormat("SkyLines: TRAFFIC_RESPONSE length mismatch (%zu != %zu), dropping",
+              length, expected_length);
     return;
+  }
 
-  for (const auto &traffic : list)
+  LogFormat("SkyLines: Processing %u traffic entries", n);
+  for (const auto &traffic : list) {
+    // Decode turn_rate from reserved (int16_t scaled by 10)
+    uint16_t reserved_u16 = traffic.reserved;
+    int16_t turn_rate_scaled = FromBE16(reserved_u16);
+    double turn_rate = turn_rate_scaled / 10.0;
+    
+    // Decode reserved2:
+    // - Lower 8 bits: aircraft_type
+    // - Next 9 bits (8-16): track (0-359 degrees)
+    // - Upper 16 bits (17-32): flarm_id (upper 16 bits)
+    uint32_t encoded = FromBE32(traffic.reserved2);
+    uint8_t aircraft_type_byte = encoded & 0xFF;
+    unsigned track = (encoded >> 8) & 0x1FF;  // 9 bits for track
+    uint32_t flarm_id = ((encoded >> 17) & 0xFFFF) << 8;  // Reconstruct upper 16 bits
+    
+    FlarmTraffic::AircraftType aircraft_type =
+      static_cast<FlarmTraffic::AircraftType>(aircraft_type_byte);
+    
     handler->OnTraffic(FromBE32(traffic.pilot_id),
                        FromBE32(traffic.time),
                        ImportGeoPoint(traffic.location),
-                       (int16_t)FromBE16(traffic.altitude));
+                       (int16_t)FromBE16(traffic.altitude),
+                       flarm_id,
+                       track,
+                       turn_rate,
+                       aircraft_type);
+  }
 }
 
 inline void
@@ -209,15 +251,20 @@ inline void
 SkyLinesTracking::Client::OnDatagramReceived(void *data, size_t length)
 {
   Header &header = *(Header *)data;
-  if (length < sizeof(header))
+  if (length < sizeof(header)) {
+    LogFormat("SkyLines: Packet too short (%zu < %zu), dropping", length, sizeof(header));
     return;
+  }
 
   const uint16_t received_crc = FromBE16(header.crc);
   header.crc = 0;
 
   const uint16_t calculated_crc = UpdateCRC16CCITT(data, length, 0);
-  if (received_crc != calculated_crc)
+  if (received_crc != calculated_crc) {
+    LogFormat("SkyLines: CRC mismatch (received=0x%04x, calculated=0x%04x), dropping packet",
+              received_crc, calculated_crc);
     return;
+  }
 
   const ACKPacket &ack = *(const ACKPacket *)data;
   const TrafficResponsePacket &traffic = *(const TrafficResponsePacket *)data;
@@ -226,7 +273,10 @@ SkyLinesTracking::Client::OnDatagramReceived(void *data, size_t length)
   const auto &wave = *(const WaveResponsePacket *)data;
   const auto &thermal = *(const ThermalResponsePacket *)data;
 
-  switch ((Type)FromBE16(header.type)) {
+  const Type packet_type = (Type)FromBE16(header.type);
+  LogFormat("SkyLines: Processing packet type=%u", (unsigned)packet_type);
+
+  switch (packet_type) {
   case PING:
   case FIX:
   case TRAFFIC_REQUEST:
@@ -243,6 +293,7 @@ SkyLinesTracking::Client::OnDatagramReceived(void *data, size_t length)
     break;
 
   case TRAFFIC_RESPONSE:
+    LogFormat("SkyLines: Processing TRAFFIC_RESPONSE packet");
     OnTrafficReceived(traffic, length);
     break;
 
@@ -267,9 +318,25 @@ SkyLinesTracking::Client::OnSocketReady(unsigned) noexcept
   ssize_t nbytes;
   StaticSocketAddress source_address;
 
-  while ((nbytes = GetSocket().ReadNoWait(std::span{buffer}, source_address)) > 0)
-    if (source_address == address)
+  while ((nbytes = GetSocket().ReadNoWait(std::span{buffer}, source_address)) > 0) {
+    // Determine if this is from cloud (127.0.0.1) or SkyLines by checking address
+    std::string address_str = ToString(SocketAddress(address));
+    const bool is_cloud = (address_str.find("127.0.0.1") != std::string::npos);
+    const char *source_name = is_cloud ? "cloud" : "SkyLines";
+    
+    // Debug: log all received packets
+    LogFormat("%s: Received %zd bytes from %s", source_name, nbytes, ToString(source_address).c_str());
+    
+    if (source_address == address) {
+      LogFormat("%s: Address matches, processing packet", source_name);
       OnDatagramReceived(buffer, nbytes);
+    } else {
+      LogFormat("%s: Address mismatch - expected %s, got %s, dropping packet",
+                source_name,
+                address_str.c_str(),
+                ToString(source_address).c_str());
+    }
+  }
 
   // TODO check for errors?
 }

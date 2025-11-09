@@ -13,9 +13,15 @@
 #include "util/tstring.hpp"
 #include "io/DataFile.hpp"
 #include "io/Reader.hxx"
+#include "io/FileReader.hxx"
 #include "io/BufferedReader.hxx"
+#include "io/ConfiguredFile.hpp"
 #include "io/StringConverter.hpp"
 #include "Language/Language.hpp"
+#include "LocalPath.hpp"
+#include "Profile/Profile.hpp"
+#include "Profile/Keys.hpp"
+#include "system/Path.hpp"
 
 #include <string>
 #include <vector>
@@ -52,7 +58,16 @@ LoadChecklist() noexcept
 try {
   Checklist c;
 
-  auto file_reader = OpenDataFile(_T(XCSCHKLIST));
+  // Get checklist file from profile, default to xcsoar-checklist.txt if not configured
+  std::unique_ptr<FileReader> file_reader;
+  auto configured_file = OpenConfiguredFile(ProfileKeys::ChecklistFile);
+  if (configured_file != nullptr) {
+    file_reader = std::move(configured_file);
+  } else {
+    // Use default file from data directory
+    file_reader = std::make_unique<FileReader>(LocalPath(_T(XCSCHKLIST)));
+  }
+
   BufferedReader reader{*file_reader};
   StringConverter string_converter{Charset::UTF8};
 

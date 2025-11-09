@@ -43,7 +43,7 @@ Server::SendBuffer(SocketAddress address,
                    std::span<const std::byte> buffer) noexcept
 {
   try {
-    ssize_t nbytes = socket.GetSocket().WriteNoWait(buffer);
+    ssize_t nbytes = socket.GetSocket().WriteNoWait(buffer, address);
     if (nbytes < 0)
       throw MakeSocketError("Failed to send");
   } catch (...) {

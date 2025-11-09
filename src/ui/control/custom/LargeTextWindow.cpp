@@ -7,6 +7,8 @@
 #include "ui/event/KeyCode.hpp"
 #include "util/StringAPI.hxx"
 
+#include <algorithm>
+
 void
 LargeTextWindow::Create(ContainerWindow &parent, PixelRect rc,
                         const LargeTextWindowStyle style)
@@ -100,7 +102,27 @@ LargeTextWindow::OnPaint(Canvas &canvas) noexcept
   canvas.ClearWhite();
 
   auto rc = canvas.GetRect();
-  canvas.DrawOutlineRectangle(rc, COLOR_BLACK);
+  
+  // Draw 3D inset border for read-only text field
+  // Scale pen width and border offset for DPI
+  const unsigned pen_width = std::max(1u, Layout::ScalePenWidth(1u));
+  const unsigned border_offset = std::max(1u, Layout::Scale(1u));
+  
+  // Create inset (sunken) effect: dark on top/left, bright on bottom/right
+  Pen dark(pen_width, Color(128, 128, 128));
+  Pen bright(pen_width, Color(240, 240, 240));
+  
+  // Draw dark shadow lines (top and left)
+  canvas.Select(dark);
+  canvas.DrawTwoLinesExact({rc.left, rc.bottom - (int)border_offset},
+                           {rc.left, rc.top},
+                           {rc.right - (int)border_offset, rc.top});
+  
+  // Draw bright highlight lines (bottom and right)
+  canvas.Select(bright);
+  canvas.DrawTwoLinesExact({rc.left + (int)border_offset, rc.bottom - (int)border_offset},
+                           {rc.right - (int)border_offset, rc.bottom - (int)border_offset},
+                           {rc.right - (int)border_offset, rc.top + (int)border_offset});
 
   if (HasFocus())
     canvas.DrawFocusRectangle(rc.WithPadding(1));

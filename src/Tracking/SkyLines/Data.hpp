@@ -29,11 +29,17 @@ struct Data {
     GeoPoint location;
     int altitude;
 
+    /**
+     * FlarmId/ICAO ID extracted from reserved2 field (0 if not available).
+     * This allows matching SkyLines traffic to FLARM databases.
+     */
+    uint32_t flarm_id;
+
     Traffic() = default;
     constexpr Traffic(Time _time, GeoPoint _location,
-                      int _altitude) noexcept
+                      int _altitude, uint32_t _flarm_id = 0) noexcept
       :time_of_day(_time),
-       location(_location), altitude(_altitude) {}
+       location(_location), altitude(_altitude), flarm_id(_flarm_id) {}
   };
 
   struct Wave {
