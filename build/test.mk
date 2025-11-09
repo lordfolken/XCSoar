@@ -992,6 +992,7 @@ RUN_SL_TRACKING_SOURCES = \
 	$(SRC)/Tracking/SkyLines/Assemble.cpp \
 	$(SRC)/Formatter/NMEAFormatter.cpp \
 	$(SRC)/TransponderCode.cpp \
+	$(TEST_SRC_DIR)/FakeLogFile.cpp \
 	$(TEST_SRC_DIR)/RunSkyLinesTracking.cpp
 RUN_SL_TRACKING_DEPENDS = $(DEBUG_REPLAY_DEPENDS)
 $(eval $(call link-program,RunSkyLinesTracking,RUN_SL_TRACKING))
@@ -1758,6 +1759,14 @@ RUN_MAP_WINDOW_SOURCES += \
 	$(SRC)/Weather/NOAAGlue.cpp \
 	$(SRC)/Weather/NOAAStore.cpp
 endif
+
+RUN_MAP_WINDOW_SOURCES += \
+	$(SRC)/Traffic/Aggregator.cpp \
+	$(SRC)/FLARM/Details.cpp \
+	$(SRC)/FLARM/TrafficDatabases.cpp \
+	$(SRC)/FLARM/NameDatabase.cpp \
+	$(SRC)/FLARM/FlarmNetDatabase.cpp \
+	$(SRC)/FLARM/FlarmNetRecord.cpp
 
 RUN_MAP_WINDOW_DEPENDS = \
 	LIBMAPWINDOW \
