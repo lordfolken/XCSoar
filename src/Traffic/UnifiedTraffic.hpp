@@ -174,10 +174,10 @@ struct UnifiedTraffic {
      valid(_timestamp),
      location_available(true),
      track_received(_track <= 359),  // Track is valid if 0-359 (0 = north is valid)
-     speed_received(_speed > 0),
+     speed_received(true),
      altitude_available(true),
-     climb_rate_received(_climb_rate != 0),
-     turn_rate_received(_turn_rate != 0),
+     climb_rate_received(true),
+     turn_rate_received(true),
      climb_rate_avg30s_available(false),
      relative_north(0),
      relative_east(0) {}
