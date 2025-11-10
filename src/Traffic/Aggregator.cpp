@@ -150,10 +150,6 @@ TrafficAggregator::GetUnifiedTrafficList(const GeoPoint &own_location,
       traffic.distance = RoughDistance(distance);
       priority += 1000.0 / (1.0 + distance / 1000.0);  // Inverse distance
       
-      if (traffic.altitude_available) {
-        // Calculate relative altitude (simplified - would need own altitude)
-        traffic.relative_altitude = traffic.altitude;
-      }
     } else {
       traffic.distance = RoughDistance(0);
     }
