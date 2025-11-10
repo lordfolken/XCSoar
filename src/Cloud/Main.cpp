@@ -139,8 +139,7 @@ private:
 
   void OnOGNExpireTimer() noexcept {
     ogn_traffic.Expire(GetEventLoop().SteadyNow() - MAX_TRAFFIC_AGE);
-    if (!ogn_traffic.empty())
-      ScheduleOGNExpire();
+    ScheduleOGNExpire();
   }
 
   void ScheduleOGNExpire() {
