@@ -96,6 +96,7 @@ static constexpr AirspaceClassStringCouple airspace_class_strings[] = {
   { "FIS", FIS_SECTOR },
   { "LTA", LTA },
   { "UTA", UTA },
+  { "UNCLASSIFIED", UNCLASSIFIED },
   { "AIRSPACECLASSCOUNT", AIRSPACECLASSCOUNT }
 };
 
