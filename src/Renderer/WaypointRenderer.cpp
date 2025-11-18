@@ -165,7 +165,8 @@ public:
      icon_renderer(settings, look,
                    _canvas,
                    projection.GetMapScale() > 4000,
-                   projection.GetScreenAngle()),
+                   projection.GetScreenAngle(),
+                   projection.GetScale()),
      labels(projection.GetScreenRect())
   {
     _tcscpy(altitude_unit, Units::GetAltitudeName());

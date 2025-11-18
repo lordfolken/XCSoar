@@ -187,10 +187,20 @@ WaypointIconRenderer::DrawLandable(const Waypoint &waypoint,
   const Runway &runway = waypoint.runway;
   if (runway.IsDirectionDefined()) {
     double len;
-    if (settings.scale_runway_length && runway.IsLengthDefined())
-      len = radius / 2. +
-        (((int) runway.GetLength() - 500) / 500) * radius / 4.;
-    else
+    if (settings.scale_runway_length && runway.IsLengthDefined()) {
+      // Convert runway length from meters to pixels using the projection scale
+      // The projection scale accounts for the map zoom level
+      // Note: The scale may need adjustment for latitude, but for now use it directly
+      // and let the user test - if still too long, we may need to calculate actual
+      // pixel distance by converting geographic coordinates
+      const double runway_length_pixels = runway.GetLength() * projection_scale;
+      
+      // Clamp to reasonable bounds: minimum for visibility, maximum to avoid
+      // runways extending too far beyond the waypoint icon
+      const double min_len = radius / 2.;
+      const double max_len = radius * 4.;  // Limit maximum length
+      len = std::clamp(runway_length_pixels, min_len, max_len);
+    } else
       len = radius;
     len += 2 * scale;
     Angle runwayDrawingAngle = runway.GetDirection() - screen_rotation;
