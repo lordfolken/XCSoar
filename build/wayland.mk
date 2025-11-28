@@ -3,7 +3,10 @@ EGL = y
 OPENGL = y
 
 $(eval $(call pkg-config-library,WAYLAND,wayland-egl))
+$(eval $(call pkg-config-library,WAYLAND_CURSOR,wayland-cursor))
 WAYLAND_FEATURE_CPPFLAGS = -DUSE_WAYLAND
+WAYLAND_CPPFLAGS += $(WAYLAND_CURSOR_CPPFLAGS)
+WAYLAND_LDLIBS += $(WAYLAND_CURSOR_LDLIBS)
 
 # Generate C sources and headers from the Wayland protocol
 # description; this is needed for interfaces which do not come
