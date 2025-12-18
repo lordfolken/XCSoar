@@ -22,7 +22,7 @@ ANDROID_ABI_DIR = $(ANDROID_BUILD)/lib/$(ANDROID_APK_LIB_ABI)
 
 JAVA_CLASSFILES_DIR = $(ANDROID_OUTPUT_DIR)/classes
 
-ANDROID_BUILD_TOOLS_DIR = $(ANDROID_SDK)/build-tools/33.0.2
+ANDROID_BUILD_TOOLS_DIR = $(ANDROID_SDK)/build-tools/35.0.0
 APKSIGNER = $(ANDROID_BUILD_TOOLS_DIR)/apksigner
 ZIPALIGN = $(ANDROID_BUILD_TOOLS_DIR)/zipalign
 AAPT = $(ANDROID_BUILD_TOOLS_DIR)/aapt
@@ -276,7 +276,7 @@ $(ANDROID_OUTPUT_DIR)/resources.apk: $(PNG_FILES) $(SOUND_FILES) $(ANDROID_XML_R
 $(GEN_DIR)/org/xcsoar/R.java: $(ANDROID_OUTPUT_DIR)/resources.apk
 
 # Note: Requires JDK 17 or later. JAVA_HOME should point to JDK 17 installation.
-$(ANDROID_OUTPUT_DIR)/classes.zip: $(JAVA_SOURCES) $(GEN_DIR)/org/xcsoar/R.java | $(JAVA_CLASSFILES_DIR)/dirstamp
+$(ANDROID_OUTPUT_DIR)/classes.jar: $(JAVA_SOURCES) $(GEN_DIR)/org/xcsoar/R.java | $(JAVA_CLASSFILES_DIR)/dirstamp
 	@$(NQ)echo "  JAVAC   $(JAVA_CLASSFILES_DIR)"
 	$(Q)$(filter-out -Werror,$(JAVAC)) \
 		--release 17 \
@@ -287,22 +287,22 @@ $(ANDROID_OUTPUT_DIR)/classes.zip: $(JAVA_SOURCES) $(GEN_DIR)/org/xcsoar/R.java 
 		-Xlint:-static \
 		-Xlint:-removal \
 		-Xlint:-this-escape \
-		-Xlint:-removal \
-		-Xlint:-this-escape \
+		-g:source,lines,vars \
 		-cp $(ANDROID_SDK_PLATFORM_DIR)/android.jar:$(JAVA_CLASSFILES_DIR) \
 		-d $(JAVA_CLASSFILES_DIR) $(GEN_DIR)/org/xcsoar/R.java \
 		-h $(NATIVE_INCLUDE) \
 		$(JAVA_SOURCES)
-	$(Q)$(ZIP) -0 -r $(ANDROID_OUTPUT_DIR)/classes.zip $(JAVA_CLASSFILES_DIR)
+	$(Q)cd $(JAVA_CLASSFILES_DIR) && $(ZIP) -0 -r $(abspath $(ANDROID_OUTPUT_DIR)/classes.jar) .
 
 # Note: desugaring causes crashes on Android 13 (Pixel 6); as a
 # workaround, it's disabled for now.
-$(ANDROID_OUTPUT_DIR)/classes.dex: $(ANDROID_OUTPUT_DIR)/classes.zip
+$(ANDROID_OUTPUT_DIR)/classes.dex: $(ANDROID_OUTPUT_DIR)/classes.jar
 	@$(NQ)echo "  D8      $@"
 	$(Q)$(D8) \
 		--no-desugaring \
 		--min-api 21 \
-		--output $(ANDROID_OUTPUT_DIR) $(ANDROID_OUTPUT_DIR)/classes.zip
+		--lib $(ANDROID_SDK_PLATFORM_DIR)/android.jar \
+		--output $(ANDROID_OUTPUT_DIR) $(ANDROID_OUTPUT_DIR)/classes.jar
 
 ifeq ($(FAT_BINARY),y)
 
