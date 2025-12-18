@@ -285,6 +285,10 @@ $(ANDROID_OUTPUT_DIR)/classes.zip: $(JAVA_SOURCES) $(GEN_DIR)/org/xcsoar/R.java 
 		-Xlint:-options \
 		-Xlint:-serial \
 		-Xlint:-static \
+		-Xlint:-removal \
+		-Xlint:-this-escape \
+		-Xlint:-removal \
+		-Xlint:-this-escape \
 		-cp $(ANDROID_SDK_PLATFORM_DIR)/android.jar:$(JAVA_CLASSFILES_DIR) \
 		-d $(JAVA_CLASSFILES_DIR) $(GEN_DIR)/org/xcsoar/R.java \
 		-h $(NATIVE_INCLUDE) \
