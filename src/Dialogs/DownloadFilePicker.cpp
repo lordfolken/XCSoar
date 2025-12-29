@@ -14,6 +14,7 @@
 #include "Language/Language.hpp"
 #include "LocalPath.hpp"
 #include "system/Path.hpp"
+#include "system/FileUtil.hpp"
 #include "io/FileLineReader.hpp"
 #include "Repository/Glue.hpp"
 #include "Repository/FileRepository.hpp"
@@ -25,6 +26,7 @@
 #include "thread/Mutex.hxx"
 #include "Operation/ThreadedOperationEnvironment.hpp"
 #include "util/ConvertString.hpp"
+#include "LogFile.hpp"
 
 #include <vector>
 #include <thread>
@@ -242,8 +244,19 @@ DownloadFilePickerWidget::Prepare(ContainerWindow &parent,
   /* Refresh list after download manager setup. If repository file already
      exists, it will be loaded. If repository is still downloading or just
      completed via Enumerate(), OnDownloadComplete() will trigger another
-     RefreshList() when the file is ready. */
-  RefreshList();
+     RefreshList() when the file is ready.
+     
+     If RefreshList() fails here (e.g., repository file doesn't exist yet),
+     don't set repository_failed - wait for the download to complete first.
+     The error will be shown if RefreshList() fails after OnDownloadComplete()
+     is called. */
+  try {
+    RefreshList();
+  } catch (...) {
+    /* Ignore errors during initial RefreshList() - the repository might
+       not be downloaded yet. Errors will be shown if RefreshList() fails
+       after the repository download completes. */
+  }
 }
 
 void
@@ -284,9 +297,8 @@ try {
       goto success;
     } catch (...) {
       last_exception = std::current_exception();
-      if (attempt < 9) {
+      if (attempt < 9)
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-      }
     }
   }
   
@@ -306,6 +318,12 @@ success:
 
   UpdateButtons();
 } catch (const std::runtime_error &e) {
+  /* If RefreshList() fails (e.g., repository file is unreadable or empty
+     after all retries), rethrow the exception so the caller can handle it.
+     This allows OnDownloadCompleteNotification() to show an error if RefreshList()
+     fails after a repository download completes, while Prepare() can silently
+     ignore the error if the repository hasn't been downloaded yet. */
+  throw;
 }
 
 void
@@ -361,9 +379,15 @@ DownloadFilePickerWidget::OnDownloadComplete(Path path_relative) noexcept
 
   if (name == Path(_T("repository"))) {
     const std::lock_guard lock{mutex};
-    repository_failed = false;
-    repository_modified = true;
-    download_complete_notify.SendNotification();
+    /* Only send notification if repository state actually changed.
+       Enumerate() may call this multiple times for the same completed
+       repository download, so we avoid triggering RefreshList() repeatedly. */
+    if (!repository_modified) {
+      repository_failed = false;
+      repository_error = nullptr;  // Clear any previous error
+      repository_modified = true;
+      download_complete_notify.SendNotification();
+    }
   }
 }
 
@@ -377,6 +401,12 @@ DownloadFilePickerWidget::OnDownloadError(Path path_relative,
 
   if (name == Path(_T("repository"))) {
     const std::lock_guard lock{mutex};
+    /* LogError() calls GetFullMessage() which rethrows the exception.
+       Wrap in try-catch to prevent exceptions from escaping noexcept function. */
+    try {
+      LogError(error);
+    } catch (...) {
+    }
     repository_failed = true;
     repository_error = std::move(error);
     download_complete_notify.SendNotification();
@@ -396,14 +426,37 @@ DownloadFilePickerWidget::OnDownloadCompleteNotification() noexcept
     repository_error2 = std::move(repository_error);
   }
 
-  if (repository_error2)
-    ShowError(std::move(repository_error2),
-              _("Failed to download the repository index."));
-  else if (repository_failed2)
-    ShowMessageBox(_("Failed to download the repository index."),
-                   _("Error"), MB_OK);
-  else if (repository_modified2)
-    RefreshList();
+  if (repository_error2) {
+    /* ShowError() calls GetFullMessage() which rethrows the exception.
+       Wrap in try-catch to prevent exceptions from escaping noexcept function. */
+    try {
+      ShowError(std::move(repository_error2),
+                _("Failed to download the repository index."));
+    } catch (...) {
+      ShowMessageBox(_("Failed to download the repository index."),
+                     _("Error"), MB_OK);
+    }
+  } else if (repository_failed2) {
+    try {
+      ShowMessageBox(_("Failed to download the repository index."),
+                     _("Error"), MB_OK);
+    } catch (...) {
+    }
+  } else if (repository_modified2) {
+    /* Try to refresh the list. If it fails (e.g., repository file is
+       unreadable or empty), show an error. */
+    try {
+      RefreshList();
+    } catch (...) {
+      /* RefreshList() failed after repository download completed.
+         This indicates the repository file is corrupted or unreadable. */
+      try {
+        ShowMessageBox(_("Failed to download the repository index."),
+                       _("Error"), MB_OK);
+      } catch (...) {
+      }
+    }
+  }
 }
 
 AllocatedPath

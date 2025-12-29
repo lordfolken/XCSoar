@@ -11,9 +11,11 @@
 #include "java/String.hxx"
 #include "LocalPath.hpp"
 #include "io/CopyFile.hxx"
+#include "system/FileUtil.hpp"
 #include "util/Macros.hpp"
 #include "util/StringAPI.hxx"
 #include "org_xcsoar_DownloadUtil.h"
+#include "LogFile.hpp"
 
 #include <algorithm>
 
@@ -139,7 +141,25 @@ Java_org_xcsoar_DownloadUtil_onDownloadComplete(JNIEnv *env, [[maybe_unused]] jo
 
   if (success) {
     try {
-      MoveOrCopyFile(tmp_path, final_path);
+      /* Check if source file exists. If not, check if destination already exists
+         (file was already moved in a previous call). */
+      if (!File::Exists(tmp_path)) {
+        if (File::Exists(final_path)) {
+          /* File was already moved, treat as success */
+        } else {
+          success = false;
+        }
+      } else {
+        /* Ensure destination directory exists */
+        const auto dest_dir = final_path.GetParent();
+        if (dest_dir != nullptr)
+          Directory::Create(dest_dir);
+        
+        MoveOrCopyFile(tmp_path, final_path);
+      }
+    } catch (const std::exception &e) {
+      LogError(std::current_exception(), "DownloadManager: File move failed");
+      success = false;
     } catch (...) {
       success = false;
     }
