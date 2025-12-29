@@ -74,7 +74,12 @@ TopWindow::Create([[maybe_unused]] const TCHAR *text, PixelSize size,
   size = screen->GetSize();
 #elif defined(ENABLE_OPENGL)
   // On HiDPI displays, the drawable size may differ from window size
-  size = screen->GetNativeSize();
+  PixelSize native_size = screen->GetNativeSize();
+  // On Android, surface might not be ready yet, so GetNativeSize() may return 0x0
+  // In that case, use the size passed to Create() (which should have a fallback)
+  if (native_size.width > 0 && native_size.height > 0)
+    size = native_size;
+  // else keep the original size (which should be from SystemWindowSize() with fallback)
 #endif
   ContainerWindow::Create(nullptr, PixelRect{size}, style);
 }
