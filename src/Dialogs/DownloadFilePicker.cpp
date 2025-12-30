@@ -285,6 +285,17 @@ try {
   std::exception_ptr last_exception;
   for (int attempt = 0; attempt < 10; ++attempt) {
     try {
+      /* Check if file exists before trying to read it. If it doesn't exist,
+         the download may not have started yet or may still be in progress. */
+      if (!File::Exists(path)) {
+        if (attempt < 9) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(50));
+          continue;
+        } else {
+          throw std::runtime_error("Repository file does not exist");
+        }
+      }
+      
       FileLineReaderA reader(path);
       ParseFileRepository(repository, reader);
       
@@ -302,9 +313,18 @@ try {
     }
   }
   
-  /* All retries failed, rethrow last exception */
-  if (last_exception)
-    std::rethrow_exception(last_exception);
+  /* All retries failed, throw a new exception with error message */
+  if (last_exception) {
+    try {
+      std::rethrow_exception(last_exception);
+    } catch (const std::exception &e) {
+      throw std::runtime_error(e.what());
+    } catch (...) {
+      throw std::runtime_error("Failed to load repository file after retries");
+    }
+  } else {
+    throw std::runtime_error("Repository file does not exist");
+  }
   
 success:
   items.clear();
@@ -379,15 +399,9 @@ DownloadFilePickerWidget::OnDownloadComplete(Path path_relative) noexcept
 
   if (name == Path(_T("repository"))) {
     const std::lock_guard lock{mutex};
-    /* Only send notification if repository state actually changed.
-       Enumerate() may call this multiple times for the same completed
-       repository download, so we avoid triggering RefreshList() repeatedly. */
-    if (!repository_modified) {
-      repository_failed = false;
-      repository_error = nullptr;  // Clear any previous error
-      repository_modified = true;
-      download_complete_notify.SendNotification();
-    }
+    repository_failed = false;
+    repository_modified = true;
+    download_complete_notify.SendNotification();
   }
 }
 
@@ -447,9 +461,16 @@ DownloadFilePickerWidget::OnDownloadCompleteNotification() noexcept
        unreadable or empty), show an error. */
     try {
       RefreshList();
-    } catch (...) {
+    } catch (const std::exception &e) {
       /* RefreshList() failed after repository download completed.
          This indicates the repository file is corrupted or unreadable. */
+      try {
+        ShowMessageBox(_("Failed to download the repository index."),
+                       _("Error"), MB_OK);
+      } catch (...) {
+      }
+    } catch (...) {
+      /* Catch-all for any other exceptions */
       try {
         ShowMessageBox(_("Failed to download the repository index."),
                        _("Error"), MB_OK);

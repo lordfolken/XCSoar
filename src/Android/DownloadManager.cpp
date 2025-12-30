@@ -15,7 +15,6 @@
 #include "util/Macros.hpp"
 #include "util/StringAPI.hxx"
 #include "org_xcsoar_DownloadUtil.h"
-#include "LogFile.hpp"
 
 #include <algorithm>
 
@@ -158,7 +157,6 @@ Java_org_xcsoar_DownloadUtil_onDownloadComplete(JNIEnv *env, [[maybe_unused]] jo
         MoveOrCopyFile(tmp_path, final_path);
       }
     } catch (const std::exception &e) {
-      LogError(std::current_exception(), "DownloadManager: File move failed");
       success = false;
     } catch (...) {
       success = false;
