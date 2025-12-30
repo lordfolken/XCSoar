@@ -27,6 +27,8 @@
 #include "util/ConvertString.hpp"
 
 #include <vector>
+#include <thread>
+#include <chrono>
 
 #include <cassert>
 
@@ -228,12 +230,20 @@ DownloadFilePickerWidget::Prepare(ContainerWindow &parent,
 
   CreateList(parent, look, rc,
              row_renderer.CalculateLayout(*look.list.font));
-  RefreshList();
 
   Net::DownloadManager::AddListener(*this);
+  
+  /* Enqueue repository download before enumerate, so Enumerate() will see
+     it as pending rather than triggering a premature OnDownloadComplete() */
+  EnqueueRepositoryDownload();
+  
   Net::DownloadManager::Enumerate(*this);
 
-  EnqueueRepositoryDownload();
+  /* Refresh list after download manager setup. If repository file already
+     exists, it will be loaded. If repository is still downloading or just
+     completed via Enumerate(), OnDownloadComplete() will trigger another
+     RefreshList() when the file is ready. */
+  RefreshList();
 }
 
 void
@@ -353,9 +363,8 @@ DownloadFilePickerWidget::OnDownloadComplete(Path path_relative) noexcept
     const std::lock_guard lock{mutex};
     repository_failed = false;
     repository_modified = true;
+    download_complete_notify.SendNotification();
   }
-
-  download_complete_notify.SendNotification();
 }
 
 void
@@ -370,9 +379,8 @@ DownloadFilePickerWidget::OnDownloadError(Path path_relative,
     const std::lock_guard lock{mutex};
     repository_failed = true;
     repository_error = std::move(error);
+    download_complete_notify.SendNotification();
   }
-
-  download_complete_notify.SendNotification();
 }
 
 void
