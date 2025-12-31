@@ -61,7 +61,8 @@ NATIVE_CLASSES := \
 	DownloadUtil \
 	BatteryReceiver \
 	NativePortListener \
-	NativeDetectDeviceListener
+	NativeDetectDeviceListener \
+	CertificateUtil
 
 NATIVE_PREFIX = $(NATIVE_INCLUDE_DIR)/$(subst .,_,$(JAVA_PACKAGE))_
 NATIVE_HEADERS = $(patsubst %,$(NATIVE_PREFIX)%.h,$(NATIVE_CLASSES))

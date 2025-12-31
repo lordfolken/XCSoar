@@ -56,7 +56,8 @@ NATIVE_CLASSES := \
 	DownloadUtil \
 	BatteryReceiver \
 	NativePortListener \
-	NativeDetectDeviceListener
+	NativeDetectDeviceListener \
+	CertificateUtil
 NATIVE_SOURCES = $(patsubst %,android/src/%.java,$(NATIVE_CLASSES))
 NATIVE_INCLUDE = $(TARGET_OUTPUT_DIR)/include
 NATIVE_PREFIX = $(NATIVE_INCLUDE)/$(subst .,_,$(JAVA_PACKAGE))_
