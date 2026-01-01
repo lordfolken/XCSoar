@@ -246,6 +246,7 @@ jobs:
           submodules: true
 
       - name: Cache ccache
+        uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ matrix.target }}-ccache
 
@@ -257,9 +258,6 @@ jobs:
           # but produce the same output, so we want to cache based on content
           ccache --set-config compiler_check=content
           ccache --set-config hard_link=false
-
-      - name: Show ccache stats
-        run: ccache --show-stats || true
 
       - name: "Cache common downloads"
         uses: actions/cache@v5
@@ -313,30 +311,11 @@ jobs:
             ${{ github.workspace }}/output/src/stamp-${{ env.BOOST }}
             ${{ github.workspace }}/output/src/${{ env.BOOST }}
 
-      - name: "Extract Android version numbers for cache key"
-        if: ${{ matrix.target == 'ANDROID' || matrix.target == 'ANDROID_BUNDLE' }}
-        id: android_versions
-        run: |
-          # Extract version numbers from install script
-          SDK_TOOLS=$(grep "^ANDROID_SDK_TOOLS_VERSION=" ide/provisioning/install-android-tools.sh | cut -d'=' -f2 | tr -d '"')
-          BUILD_TOOLS=$(grep "^ANDROID_BUILD_TOOLS_VERSION=" ide/provisioning/install-android-tools.sh | cut -d'=' -f2 | tr -d '"')
-          PLATFORM=$(grep "^ANDROID_PLATFORM_VERSION=" ide/provisioning/install-android-tools.sh | cut -d'=' -f2 | tr -d '"')
-          NDK=$(grep "^ANDROID_NDK_VERSION=" ide/provisioning/install-android-tools.sh | cut -d'=' -f2 | tr -d '"')
-          BUNDLETOOL=$(grep "^BUNDLETOOL_VERSION=" ide/provisioning/install-android-tools.sh | cut -d'=' -f2 | tr -d '"')
-          
-          # Create version string for cache key
-          VERSIONS="sdk${SDK_TOOLS}-build${BUILD_TOOLS}-platform${PLATFORM}-ndk${NDK}-bundle${BUNDLETOOL}"
-          echo "versions=${VERSIONS}" >> $GITHUB_OUTPUT
-          
-          # Also hash script files as backup (in case of other changes)
-          cat ide/provisioning/install-android-tools.sh build/android.mk build/android_bundle.mk 2>/dev/null | sha256sum | cut -d' ' -f1 > /tmp/android_script_hash.txt
-          echo "script_hash=$(cat /tmp/android_script_hash.txt)" >> $GITHUB_OUTPUT
-
       - name: "Cache Android SDK/NDK"
         if: ${{ matrix.target == 'ANDROID' || matrix.target == 'ANDROID_BUNDLE' }}
         uses: actions/cache@v5
         with:
-          key: android-tools-${{ matrix.ndk }}-${{ steps.android_versions.outputs.versions }}-script${{ steps.android_versions.outputs.script_hash }}
+          key: android-tools-${{ matrix.ndk }}-${{ hashFiles('ide/provisioning/install-android-tools.sh', 'build/android.mk', 'build/android_bundle.mk') }}
           restore-keys: |
             android-tools-${{ matrix.ndk }}-
             android-tools-
@@ -495,6 +474,9 @@ jobs:
             DEB_BUILD_OPTIONS=ccache dpkg-buildpackage --jobs-force=$(nproc) --no-sign
             cp *.deb ../
           fi
+
+      - name: Show ccache stats
+        run: ccache --show-stats || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
