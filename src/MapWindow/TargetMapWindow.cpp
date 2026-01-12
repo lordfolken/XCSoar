@@ -208,10 +208,11 @@ TargetMapWindow::OnPaintBuffer(Canvas &canvas) noexcept
   RenderTopographyLabels(canvas);
 
   // Finally, draw you!
-  if (Basic().alive)
+  if (Basic().alive) {
     AircraftRenderer::Draw(canvas, GetMapSettings(), aircraft_look,
                            Basic().attitude.heading - projection.GetScreenAngle(),
                            aircraft_pos);
+  }
 
   RenderMapScale(canvas, projection, GetClientRect(), overlay_look);
 }

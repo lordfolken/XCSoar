@@ -180,91 +180,61 @@ MapWindow::Render(Canvas &canvas, const PixelRect &rc) noexcept
   // Interpolates between GPS fixes (typically 1 Hz) for smooth movement at 10 Hz
   PixelPoint aircraft_pos{0,0};
   Angle aircraft_heading = Angle::Zero();
-  if (basic.location_available && basic.time_available) {
+  if (basic.location_available) {
     GeoPoint aircraft_location = basic.location;
     
-    // Check if we got a new GPS fix
-    const bool is_new_gps_fix = !last_gps_time.IsDefined() || basic.time != last_gps_time;
+    // GPS fixes are updated in the main thread (UpdateProjection), not here in the draw thread
+    // We just use the stored fixes for interpolation - don't try to detect new fixes here
+    // The stored fixes (prev_gps_location, current_gps_location) are updated by the main thread
+    // when location changes are detected in UpdateProjection()
     
-    if (is_new_gps_fix) {
-      // New GPS fix detected - basic.location is the new location
-      if (has_prev_gps && current_gps_location.IsValid()) {
-        // We have a previous GPS location stored
-        // Update: previous = old current, current = new location
-        prev_gps_location = current_gps_location;
-        prev_gps_time = current_gps_time;
-        current_gps_location = basic.location;
-        current_gps_time = basic.time;
-        
-        // Update heading for interpolation
-        if (basic.attitude.heading_available) {
-          if (has_prev_gps_heading) {
-            prev_gps_heading = current_gps_heading;
-          } else {
-            prev_gps_heading = basic.attitude.heading;
-            has_prev_gps_heading = true;
-          }
-          current_gps_heading = basic.attitude.heading;
-        }
-        
-        // Start interpolation from previous location toward current location
-        aircraft_location = prev_gps_location;
-        if (has_prev_gps_heading) {
-          aircraft_heading = prev_gps_heading;
-        } else {
-          aircraft_heading = basic.attitude.heading_available ? basic.attitude.heading : Angle::Zero();
-        }
-      } else {
-        // First GPS fix - initialize both to current location
-        prev_gps_location = basic.location;
-        prev_gps_time = basic.time;
-        current_gps_location = basic.location;
-        current_gps_time = basic.time;
-        has_prev_gps = true;
-        aircraft_location = basic.location;
-        
-        // Initialize heading
-        if (basic.attitude.heading_available) {
-          prev_gps_heading = basic.attitude.heading;
-          current_gps_heading = basic.attitude.heading;
-          has_prev_gps_heading = true;
-          aircraft_heading = basic.attitude.heading;
-        } else {
-          aircraft_heading = Angle::Zero();
-        }
-      }
-      
-      // Update last_gps_time for next comparison and reset wall-clock timer
-      last_gps_time = basic.time;
-      last_gps_fix_clock.Update();
+    // Check if we have valid stored GPS fixes for interpolation
+    const bool has_valid_fixes = has_prev_gps && prev_gps_location.IsValid() && current_gps_location.IsValid();
+    
+    if (!has_valid_fixes) {
+      // No stored fixes yet - use current location directly
+      // This happens on first GPS fix before UpdateProjection() has stored the fixes
+      aircraft_location = basic.location;
+      aircraft_heading = basic.attitude.heading_available ? basic.attitude.heading : Angle::Zero();
     } else {
+      // Use stored GPS fixes for interpolation (updated by main thread in UpdateProjection)
+      // Always interpolate between prev and current - don't detect new fixes here
       // Between GPS fixes - smoothly interpolate from previous GPS location to current GPS location
       // Use wall-clock time for smooth constant-speed interpolation
-      if (has_prev_gps && prev_gps_location.IsValid() && current_gps_location.IsValid() &&
-          prev_gps_time.IsDefined() && current_gps_time.IsDefined() && last_gps_fix_clock.IsDefined()) {
-        // Calculate elapsed wall-clock time since the last GPS fix
+      // Render "one fix behind" - interpolate between prev and current, not use current directly
+      
+      // Default to prev location (one fix behind) - this ensures smooth movement
+      aircraft_location = prev_gps_location;
+      aircraft_heading = has_prev_gps_heading ? prev_gps_heading : 
+                        (basic.attitude.heading_available ? basic.attitude.heading : Angle::Zero());
+      
+      // Try to interpolate if clock is available
+      if (last_gps_fix_clock.IsDefined()) {
+        // Calculate elapsed wall-clock time since prev was set (when clock was last updated)
         const auto elapsed_wall = last_gps_fix_clock.Elapsed();
         // Elapsed() can return negative if clock was never updated, so check for that
-        if (elapsed_wall.count() < 0) {
-          aircraft_location = basic.location;
-          aircraft_heading = basic.attitude.heading_available ? basic.attitude.heading : Angle::Zero();
-        } else {
+        if (elapsed_wall.count() >= 0) {
           const double elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(elapsed_wall).count();
         
           // Calculate total GPS time between previous and current GPS fixes
-          const auto total_time = current_gps_time - prev_gps_time;
-          double gps_interval = total_time.count();
-          if (gps_interval <= 0 || gps_interval > 5.0) {
-            gps_interval = 1.0; // Default to 1 second (typical GPS update rate)
+          // Use estimated interval if GPS time isn't available
+          double gps_interval = 1.0; // Default to 1 second (typical GPS update rate)
+          if (prev_gps_time.IsDefined() && current_gps_time.IsDefined()) {
+            const auto total_time = current_gps_time - prev_gps_time;
+            double interval = total_time.count();
+            if (interval > 0 && interval <= 5.0) {
+              gps_interval = interval;
+            }
           }
           
-          if (elapsed_seconds > 0 && elapsed_seconds < gps_interval * 1.5) {
+          if (elapsed_seconds >= 0 && elapsed_seconds < gps_interval * 1.5) {
             // Calculate interpolation factor (0 = at prev location, 1 = at current location)
             // Use wall-clock time for smooth constant-speed movement
             double t = elapsed_seconds / gps_interval;
             t = std::clamp(t, 0.0, 1.0);
             
             // Interpolate between previous GPS fix location and current GPS fix location
+            // This provides smooth 10Hz movement between 1Hz GPS fixes
             aircraft_location = prev_gps_location.Interpolate(current_gps_location, t);
             
             // Interpolate heading angle smoothly
@@ -273,17 +243,12 @@ MapWindow::Render(Canvas &canvas, const PixelRect &rc) noexcept
             } else {
               aircraft_heading = basic.attitude.heading_available ? basic.attitude.heading : Angle::Zero();
             }
-          } else {
-            // Too much time elapsed - use current location
-            aircraft_location = current_gps_location;
-            aircraft_heading = has_prev_gps_heading ? current_gps_heading : 
-                               (basic.attitude.heading_available ? basic.attitude.heading : Angle::Zero());
           }
+          // If elapsed_seconds >= gps_interval * 1.5, we already set aircraft_location to prev_gps_location above
         }
-      } else {
-        aircraft_location = basic.location;
-        aircraft_heading = basic.attitude.heading_available ? basic.attitude.heading : Angle::Zero();
+        // If elapsed_wall.count() < 0, we already set aircraft_location to prev_gps_location above
       }
+      // If clock not defined, we already set aircraft_location to prev_gps_location above
     }
     
     // Convert interpolated location to screen coordinates
@@ -297,8 +262,11 @@ MapWindow::Render(Canvas &canvas, const PixelRect &rc) noexcept
     has_last_aircraft_pos = false;
     if (!basic.time_available) {
       last_gps_time = TimeStamp::Undefined();
+      has_oldest_gps = false;
       has_prev_gps = false;
+      has_oldest_gps_heading = false;
       has_prev_gps_heading = false;
+      has_current_gps_heading = false;
     }
     aircraft_heading = basic.attitude.heading_available ? basic.attitude.heading : Angle::Zero();
   }
@@ -402,10 +370,11 @@ MapWindow::Render(Canvas &canvas, const PixelRect &rc) noexcept
 
   //////////////////////////////////////////////// own aircraft
   // Finally, draw you!
-  if (basic.location_available)
+  if (basic.location_available) {
     AircraftRenderer::Draw(canvas, GetMapSettings(), look.aircraft,
                            aircraft_heading - render_projection.GetScreenAngle(),
                            aircraft_pos);
+  }
 
   //////////////////////////////////////////////// important overlays
   // Draw intersections on top of aircraft
