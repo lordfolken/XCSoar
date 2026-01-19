@@ -23,16 +23,44 @@
 #include "UIGlobals.hpp"
 #include "Components.hpp"
 #include "BackendComponents.hpp"
+#include "DataComponents.hpp"
+#include "Engine/Waypoint/Waypoints.hpp"
+#include "Geo/GeoVector.hpp"
+#include "Terrain/RasterTerrain.hpp"
+#include "Protection.hpp"
+
+#include <limits>
 
 #ifdef HAVE_NOAA
 #include "Dialogs/Weather/NOAADetails.hpp"
 #endif
 
+/**
+ * Get the best available elevation for a location map item.
+ * Prefers the stored elevation, falls back to terrain lookup,
+ * returns NaN if neither is available.
+ */
+static double
+GetLocationElevation(const LocationMapItem &item) noexcept
+{
+  if (item.HasElevation())
+    return item.elevation;
+
+  if (data_components != nullptr &&
+      data_components->terrain != nullptr) {
+    const auto h =
+      data_components->terrain->GetTerrainHeight(item.location);
+    if (!h.IsSpecial())
+      return h.GetValue();
+  }
+
+  return std::numeric_limits<double>::quiet_NaN();
+}
+
 static bool
 HasDetails(const MapItem &item)
 {
   switch (item.type) {
-  case MapItem::Type::LOCATION:
   case MapItem::Type::ARRIVAL_ALTITUDE:
   case MapItem::Type::SELF:
   case MapItem::Type::THERMAL:
@@ -41,6 +69,7 @@ HasDetails(const MapItem &item)
 #endif
     return false;
 
+  case MapItem::Type::LOCATION:
   case MapItem::Type::AIRSPACE:
   case MapItem::Type::WAYPOINT:
   case MapItem::Type::TASK_OZ:
@@ -119,8 +148,10 @@ public:
   }
 
   static bool CanGotoItem(const MapItem &item) noexcept {
-    return backend_components->protected_task_manager &&
-      item.type == MapItem::Type::WAYPOINT;
+    return backend_components != nullptr &&
+           backend_components->protected_task_manager &&
+           (item.type == MapItem::Type::WAYPOINT ||
+            item.type == MapItem::Type::LOCATION);
   }
 
   bool CanAckItem(unsigned index) const noexcept {
@@ -128,6 +159,9 @@ public:
   }
 
   static bool CanAckItem(const MapItem &item) noexcept {
+    if (backend_components == nullptr)
+      return false;
+
     const AirspaceMapItem &as_item = (const AirspaceMapItem &)item;
 
     return item.type == MapItem::Type::AIRSPACE &&
@@ -168,12 +202,31 @@ MapItemListWidget::Prepare(ContainerWindow &parent,
   GetList().SetLength(list.size());
   UpdateButtons();
 
+  // First, try to find a waypoint to preselect
+  unsigned selected_index = list.size();
   for (unsigned i = 0; i < list.size(); ++i) {
     const MapItem &item = *list[i];
-    if (HasDetails(item) || CanGotoItem(item)) {
-      GetList().SetCursorIndex(i);
+    if (item.type == MapItem::Type::WAYPOINT) {
+      selected_index = i;
       break;
     }
+  }
+
+  // If no waypoint found, fall back to first item with details or can goto
+  if (selected_index >= list.size()) {
+    for (unsigned i = 0; i < list.size(); ++i) {
+      const MapItem &item = *list[i];
+      if (HasDetails(item) || CanGotoItem(item)) {
+        selected_index = i;
+        break;
+      }
+    }
+  }
+
+  // Set cursor if we found something to select
+  if (selected_index < list.size()) {
+    GetList().SetCursorIndex(selected_index);
+    UpdateButtons();
   }
 }
 
@@ -206,12 +259,34 @@ MapItemListWidget::OnGotoClicked()
   if (!backend_components->protected_task_manager)
     return;
 
+  if (data_components == nullptr || data_components->waypoints == nullptr)
+    return;
+
   unsigned index = GetCursorIndex();
   auto const &item = *list[index];
 
-  assert(item.type == MapItem::Type::WAYPOINT);
+  assert(item.type == MapItem::Type::WAYPOINT ||
+         item.type == MapItem::Type::LOCATION);
 
-  auto waypoint = ((const WaypointMapItem &)item).waypoint;
+  WaypointPtr waypoint;
+
+  if (item.type == MapItem::Type::LOCATION) {
+    const auto &loc_item = static_cast<const LocationMapItem &>(item);
+    const double elevation = GetLocationElevation(loc_item);
+
+    auto &way_points = *data_components->waypoints;
+    const char *goto_name = "(goto)";
+    {
+      ScopeSuspendAllThreads suspend;
+      way_points.AddTempPoint(loc_item.location, elevation, goto_name);
+      waypoint = way_points.LookupName(goto_name);
+    }
+    if (!waypoint)
+      return;
+  } else {
+    waypoint = static_cast<const WaypointMapItem &>(item).waypoint;
+  }
+
   backend_components->protected_task_manager->DoGoto(std::move(waypoint));
   cancel_button->Click();
 }
@@ -252,7 +327,6 @@ ShowMapItemDialog(const MapItem &item,
                   ProtectedAirspaceWarningManager *airspace_warnings)
 {
   switch (item.type) {
-  case MapItem::Type::LOCATION:
   case MapItem::Type::ARRIVAL_ALTITUDE:
   case MapItem::Type::SELF:
   case MapItem::Type::THERMAL:
@@ -265,6 +339,26 @@ ShowMapItemDialog(const MapItem &item,
     dlgAirspaceDetails(((const AirspaceMapItem &)item).airspace,
                        airspace_warnings);
     break;
+  case MapItem::Type::LOCATION: {
+    if (waypoints == nullptr)
+      break;
+
+    const auto &loc_item = static_cast<const LocationMapItem &>(item);
+    const double elevation = GetLocationElevation(loc_item);
+
+    const char *goto_name = "(goto)";
+    WaypointPtr wp;
+    {
+      ScopeSuspendAllThreads suspend;
+      waypoints->AddTempPoint(loc_item.location, elevation, goto_name);
+      wp = waypoints->LookupName(goto_name);
+    }
+
+    // Show details outside the suspend scope to avoid blocking threads
+    if (wp)
+      dlgWaypointDetailsShowModal(waypoints, wp, true, true);
+    break;
+  }
   case MapItem::Type::WAYPOINT:
     dlgWaypointDetailsShowModal(waypoints,
                                 ((const WaypointMapItem &)item).waypoint,
