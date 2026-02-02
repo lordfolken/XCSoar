@@ -5,13 +5,15 @@
           android:versionCode="170"
           android:versionName="7.44">
   <application
+      android:allowBackup="true"
+      android:backupAgent="org.xcsoar.XCSoarBackupAgent"
+      android:fullBackupOnly="true"
       android:requestLegacyExternalStorage="true"
       android:preserveLegacyExternalStorage="true"
       android:hasFragileUserData="true"
       android:appCategory="maps"
       android:icon="@drawable/icon"
       android:label="@string/app_name"
-      android:allowBackup="true"
       android:supportsRtl="true"
       android:theme="@style/XCSoarTheme">
     <activity android:name="org.xcsoar.XCSoar"
