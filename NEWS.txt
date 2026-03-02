@@ -242,6 +242,8 @@ Version 7.44 - not yet released
 * input/configuration
   - add WeGlide configured checkbox to input configuration
   - shorten Config menu item descriptions for better portrait mode display
+  - add Ballast toggle input event to start/stop ballast dump timer from
+    custom input actions
 * bug fixes
   - fix memory leak when reloading FLARM traffic databases
 
