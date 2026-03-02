@@ -246,6 +246,8 @@ ExtractByEocdScan(FileDescriptor fd, off_t filesize,
       name_len};
 
     if (StringIsEqualIgnoreCase(name, entry_name)) {
+      const uint32_t cd_compressed_size = LE32(cd.data() + pos + 20);
+      const uint32_t cd_uncompressed_size = LE32(cd.data() + pos + 24);
       const uint32_t local_offset = LE32(cd.data() + pos + 42);
       const off_t real_local = static_cast<off_t>(local_offset) + concat;
       if (real_local < 0 ||
@@ -261,11 +263,22 @@ ExtractByEocdScan(FileDescriptor fd, off_t filesize,
       if (LE32(lh) != ZIP_LOCAL_FILE_SIG)
         return {};
 
+      const uint16_t flags = LE16(lh + 6);
       const uint16_t compression = LE16(lh + 8);
-      const uint32_t compressed_size = LE32(lh + 18);
-      const uint32_t uncompressed_size = LE32(lh + 22);
+      uint32_t compressed_size = LE32(lh + 18);
+      uint32_t uncompressed_size = LE32(lh + 22);
       const uint16_t lh_name_len = LE16(lh + 26);
       const uint16_t lh_extra_len = LE16(lh + 28);
+
+      /*
+       * For entries that use ZIP data descriptors (bit 3), the local
+       * header may carry zero sizes; in that case the central
+       * directory values are authoritative.
+       */
+      if (flags & 0x08) {
+        compressed_size = cd_compressed_size;
+        uncompressed_size = cd_uncompressed_size;
+      }
 
       if (fd.Skip(lh_name_len + lh_extra_len) < 0)
         return {};
