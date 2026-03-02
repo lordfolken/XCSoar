@@ -511,7 +511,7 @@ static constexpr MetaData meta_data[] = {
     N_("Relative humidity"),
     N_("Rel Hum"),
     N_("Relative humidity of the air in percent as measured by a probe if supported by a connected intelligent variometer."),
-    UpdateInfoBoxHumidity,
+    IBFHelper<InfoBoxContentHumidity>::Create,
   },
 
   // e_Home_Temperature
@@ -1161,6 +1161,15 @@ InfoBoxFactory::GetName(Type type) noexcept
 {
   assert(type < NUM_TYPES);
 
+  if (type == e_VerticalSpeed_Netto)
+    return C_("InfoBox title (netto vario)", "Netto vario");
+
+  if (type == e_Track_GPS)
+    return C_("InfoBox title (ground track)", "Track");
+
+  if (type == e_VerticalSpeed_GPS)
+    return C_("InfoBox title (vertical speed)", "Vario");
+
   return meta_data[type].name;
 }
 
@@ -1168,6 +1177,36 @@ const char *
 InfoBoxFactory::GetCaption(Type type) noexcept
 {
   assert(type < NUM_TYPES);
+
+  if (type == e_Load_G)
+    return C_("InfoBox caption (gravity/load factor)", "G");
+
+  if (type == e_LD)
+    return C_("InfoBox caption (L/D from vario)", "L/D Vario");
+
+  if (type == e_WindSpeed_Est || type == e_WindBearing_Est)
+    return C_("InfoBox caption (wind)", "Wind");
+
+  if (type == e_Track_GPS)
+    return C_("InfoBox caption (ground track)", "Track");
+
+  if (type == e_VerticalSpeed_GPS)
+    return C_("InfoBox caption (vertical speed)", "Vario");
+
+  if (type == e_Bearing)
+    return C_("InfoBox caption (next waypoint bearing)", "Bearing");
+
+  if (type == e_Horizon)
+    return C_("InfoBox caption (attitude indicator)", "Horizon");
+
+  if (type == e_TimeUTC)
+    return C_("InfoBox caption (utc time)", "Time UTC");
+
+  if (type == WIND_ARROW)
+    return C_("InfoBox caption (wind arrow)", "Wind");
+
+  if (type == THERMAL_ASSISTANT)
+    return C_("InfoBox caption (thermal assistant)", "Thermal");
 
   return meta_data[type].caption;
 }

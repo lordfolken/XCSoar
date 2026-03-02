@@ -5,6 +5,8 @@
 
 #include "Features.hpp"
 
+#include <string>
+
 #ifdef USE_LIBINTL
 
 #include <libintl.h> // IWYU pragma: export
@@ -15,6 +17,19 @@
 #define N_(x) gettext_noop(x)
 #else
 #define N_(x) (x)
+#endif
+
+[[nodiscard]]
+static inline const char *
+gettext_context(const char *context, const char *text)
+{
+  const std::string key = std::string(context) + '\004' + text;
+  const char *translation = gettext(key.c_str());
+  return translation != key.c_str() ? translation : text;
+}
+
+#ifndef C_
+#define C_(context, x) gettext_context((context), (x))
 #endif
 
 static inline void AllowLanguage() {}
@@ -41,6 +56,19 @@ const char* gettext(const char* text);
  */
 #define _(x) gettext(x)
 #define N_(x) x
+
+[[nodiscard]]
+static inline const char *
+gettext_context(const char *context, const char *text)
+{
+  const std::string key = std::string(context) + '\004' + text;
+  const char *translation = gettext(key.c_str());
+  return translation != key.c_str() ? translation : text;
+}
+
+#ifndef C_
+#define C_(context, x) gettext_context((context), (x))
+#endif
 
 void reset_gettext_cache();
 
