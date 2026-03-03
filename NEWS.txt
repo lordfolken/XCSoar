@@ -237,6 +237,8 @@ Version 7.44 - not yet released
   - build system: enable building target in alternative directory
   - build system: fix AAPT2 XML parsing error for dirstamp files
   - build system: keep NaN/Inf checks with clang fast-math
+  - gettext/po: preserve existing PO layout during update-po while removing
+    obsolete/fuzzy churn and refresh translations across all language catalogs
   - build system: fix install names for rpath (ANGLE)
   - build system: move HAVE_HTTP to targets.mk as platform capability flag
 * input/configuration
