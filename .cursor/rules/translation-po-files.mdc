@@ -1,0 +1,28 @@
+---
+description: Strict PO/gettext editing workflow for translation files
+globs: po/**,build/gettext.mk,tools/*po*.py,tools/update_po_low_churn.py
+alwaysApply: false
+---
+
+# PO / Gettext File Workflow
+
+- Keep diffs semantic and low-churn: avoid unrelated reflow or formatting noise.
+- Preserve exact placeholder/token structure in translations:
+  `%` tokens, `{0}` tokens, escape sequences, and hotkey-hint suffix lines
+  (e.g., `\n(ESC)`, `\n(UP)`).
+- When adding or editing short UI labels, prefer explicit `msgctxt` so
+  translators can produce concise wording for constrained widgets.
+- For InfoBox labels, enforce compact translations:
+  - captions: prefer `<= 12` chars, hard limit `<= 14`
+  - titles: prefer `<= 14` chars, hard limit `<= 16`
+  - use standard aviation abbreviations when needed.
+- If updating gettext flow, keep behavior aligned with project goals:
+  add new ids, update references, remove obsolete/fuzzy as configured, and
+  avoid unnecessary file-wide churn.
+- Do not introduce invalid `.po` comment placement that breaks `msgmerge`.
+
+# Required Checks Before Finishing
+
+- Run `msgfmt --check` on changed `.po` files.
+- If `build/gettext.mk` or PO merge tooling changed, verify idempotence
+  expectations (`make update-po` should not introduce unrelated churn).

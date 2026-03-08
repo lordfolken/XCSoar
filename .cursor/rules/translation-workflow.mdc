@@ -1,0 +1,37 @@
+---
+description: Translation workflow and msgctxt guidance for user-facing text
+alwaysApply: true
+---
+
+# Translation Workflow
+
+- Any new user-facing string must be marked for translation (`_()` / `N_()`).
+- Logging/debug strings must stay in English and must not use translation macros.
+- Prefer adding `msgctxt` (`C_()` / `NC_()`) when a string is ambiguous or reused
+  in different UI contexts.
+- Always add `msgctxt` for short labels/titles in space-constrained UI (e.g.,
+  InfoBox captions/titles) so translators can keep compact wording.
+- InfoBox label length policy:
+  - captions: prefer `<= 12` characters, hard limit `<= 14`
+  - titles: prefer `<= 14` characters, hard limit `<= 16`
+  - if a natural translation is longer, use a common abbreviation/acronym
+    appropriate for pilots.
+- `msgctxt` should describe UI usage, not implementation details (e.g.,
+  `InfoBox caption (wind)`).
+
+# PO Update Expectations
+
+- Keep translation diffs low-churn: avoid unrelated reformatting/reflow.
+- For PO updates, preserve placeholders/tokens exactly (`%s`, `%d`, `{0}`,
+  escape sequences, and hotkey hint lines like `\n(ESC)`).
+- Remove obsolete entries and clear fuzzy/previous metadata according to project
+  tooling, but do not silently promote incorrect machine translations.
+- Validate changed PO files with `msgfmt --check` before finishing.
+
+# Translator Prompting Guidance
+
+- When using translation tools/LLMs, provide `msgctxt` hints per string.
+- For contexts like `InfoBox caption` or `InfoBox title`, instruct the model to
+  return concise label-style translations and respect the label length policy.
+- Reject outputs that contain prompt/policy leakage, mapping syntax (`=>`), or
+  reasoning artifacts (e.g., `/think`).
