@@ -360,7 +360,9 @@ ManagedFileListWidget::LoadRepositoryFile()
 #endif
 
   repository.Clear();
+#ifdef HAVE_DOWNLOAD_MANAGER
   LoadAllRepositories(repository);
+#endif
 }
 
 void

@@ -119,6 +119,7 @@ LoadAllRepositories(FileRepository &repository)
 void
 EnqueueRepositoryDownload(bool force, bool main_repo, bool user_repo)
 {
+#ifdef HAVE_DOWNLOAD_MANAGER
   if (main_repo) {
     if (!repository_downloaded || force) {
       repository_downloaded = true;
@@ -136,6 +137,11 @@ EnqueueRepositoryDownload(bool force, bool main_repo, bool user_repo)
         Net::DownloadManager::Enqueue(repo.uri.c_str(), Path(path.c_str()));
       }
   }
+#else
+  (void)force;
+  (void)main_repo;
+  (void)user_repo;
+#endif
 }
 
 #ifdef HAVE_DOWNLOAD_MANAGER

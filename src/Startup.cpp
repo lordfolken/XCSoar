@@ -131,6 +131,8 @@
 #include "Weather/EDL/Glue.hpp"
 #endif
 
+#include <stdio.h>
+
 static TaskManager *task_manager;
 static GlideComputerEvents *glide_computer_events;
 #ifdef HAVE_EDL
@@ -139,6 +141,13 @@ static EDL::Glue *edl_glue;
 static AllMonitors *all_monitors;
 static GlideComputerTaskEvents *task_events;
 static DeviceFactory *device_factory;
+
+static void
+StartupTrace(const char *msg) noexcept
+{
+  fprintf(stderr, "xcsoar trace: %s\n", msg);
+  fflush(stderr);
+}
 
 static bool
 LoadProfile()
@@ -362,7 +371,9 @@ Startup(UI::Display &display)
 #ifdef SIMULATOR_AVAILABLE
   // prompt for simulator if not set by command line argument "-simulator" or "-fly"
   if (!sim_set_in_cmd_line_flag) {
+    StartupTrace("Startup: before simulator prompt");
     SimulatorPromptResult result = dlgSimulatorPromptShowModal();
+    StartupTrace("Startup: simulator prompt returned");
     switch (result) {
     case SPR_QUIT:
       return false;

@@ -510,6 +510,7 @@ XCSOAR_SOURCES := \
 	$(SRC)/Repository/FileRepository.cpp \
 	$(SRC)/Repository/FileType.cpp \
 	$(SRC)/Repository/Parser.cpp \
+	$(SRC)/Repository/Glue.cpp \
 	\
 	$(SRC)/Storage/PlatformStorageMonitor.cpp \
 	$(SRC)/Storage/PlatformStorageHotplugMonitor.cpp \
@@ -678,11 +679,15 @@ XCSOAR_SOURCES += \
 	$(SRC)/XCSoar.cpp
 endif
 
+ifeq ($(TARGET_IS_KOBO_NICKEL),y)
+XCSOAR_SOURCES += \
+	$(SRC)/Compatibility/getrandom.c
+endif
+
 ifeq ($(HAVE_HTTP),y)
 XCSOAR_SOURCES += \
 	$(SRC)/Dialogs/DownloadFileModal.cpp \
 	$(SRC)/Dialogs/DownloadFilePicker.cpp \
-	$(SRC)/Repository/Glue.cpp \
 	$(SRC)/Renderer/NOAAListRenderer.cpp \
 	$(SRC)/Weather/PCMet/Images.cpp \
 	$(SRC)/Weather/PCMet/Overlays.cpp \

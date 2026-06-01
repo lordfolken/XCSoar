@@ -20,7 +20,9 @@
 #include "Dialogs/Settings/Panels/NetworkConfigPanel.hpp"
 #include "Dialogs/Settings/Panels/WeatherConfigPanel.hpp"
 #include "Dialogs/Settings/Panels/SafetyFactorsConfigPanel.hpp"
+#ifdef HAVE_TRACKING
 #include "Dialogs/Settings/Panels/TrackingConfigPanel.hpp"
+#endif
 #include "Dialogs/Settings/Panels/TerrainDisplayConfigPanel.hpp"
 #include "Dialogs/DataManagement/BackupRestorePanel.hpp"
 #include "Widget/Widget.hpp"
@@ -84,7 +86,9 @@ static constexpr ConfigPanelLink config_panel_links[] = {
   {"config/network",    N_("Network"),    CreateNetworkConfigPanel},
   {"config/weather",    N_("Weather"),    CreateWeatherConfigPanel},
   {"config/safety",     N_("Safety Factors"), CreateSafetyFactorsConfigPanel},
+#ifdef HAVE_TRACKING
   {"config/tracking",   N_("Tracking"),   CreateTrackingConfigPanel},
+#endif
   {"config/terrain",    N_("Terrain Display"), CreateTerrainDisplayConfigPanel},
 };
 
