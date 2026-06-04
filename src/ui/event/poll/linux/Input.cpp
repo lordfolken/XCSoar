@@ -15,6 +15,8 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 
+#include <linux/input.h>
+
 template<typename T>
 static constexpr unsigned
 BitSize() noexcept
@@ -97,6 +99,12 @@ LinuxInputDevice::Open(const char *path) noexcept
         max_y = abs.maximum;
       }
     }
+
+#ifdef TARGET_IS_KOBO_NICKEL
+    /* NickelMenu starts XCSoar without exiting nickel; grab touch so
+       the stock UI does not see the same events. */
+    ioctl(event.GetFileDescriptor().Get(), EVIOCGRAB, 1);
+#endif
   }
 
   rel_x = rel_y = rel_wheel = 0;
@@ -111,8 +119,12 @@ LinuxInputDevice::Close() noexcept
   if (!IsOpen())
     return;
 
-  if (is_pointer)
+  if (is_pointer) {
+#ifdef TARGET_IS_KOBO_NICKEL
+    ioctl(event.GetFileDescriptor().Get(), EVIOCGRAB, 0);
+#endif
     merge.RemovePointer();
+  }
 
   event.Close();
 }

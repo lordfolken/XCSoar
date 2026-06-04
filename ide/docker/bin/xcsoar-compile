@@ -20,6 +20,10 @@ case "${TARGET}" in
         make TARGET="${TARGET}" -j"${CPUS}" "${ARGS[@]}"
         make TARGET="${TARGET}" -j"${CPUS}" output/KOBO/KoboRoot.tgz
       ;;
+      "KOBO_NICKEL")
+        make TARGET="${TARGET}" -j"${CPUS}" libs
+        make TARGET="${TARGET}" -j"${CPUS}" "${ARGS[@]}"
+      ;;
       "WAYLAND" | "UNIX" | "PC" | "WIN64")
         make TARGET="${TARGET}" -j"${CPUS}" "${ARGS[@]}"
       ;;

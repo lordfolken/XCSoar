@@ -40,22 +40,6 @@ using std::string_view_literals::operator""sv;
 
 [[gnu::pure]]
 static AllocatedPath
-GetRelativePathByType(const AvailableFile &file)
-{
-  const auto base = file.GetName();
-  if (base == nullptr)
-    return nullptr;
-
-  const AllocatedPath subdir = GetFileTypeDefaultDir(file.type);
-  if (subdir == nullptr)
-    return AllocatedPath(base);
-
-  return AllocatedPath::Build(subdir, Path(base));
-}
-
-
-[[gnu::pure]]
-static AllocatedPath
 LocalPathByType(const char *name, FileType type)
 {
   if (name == nullptr)
@@ -75,6 +59,25 @@ LocalPathByType(const AvailableFile &file)
 
   return LocalPathByType(name, file.type);
 }
+
+#ifdef HAVE_DOWNLOAD_MANAGER
+
+[[gnu::pure]]
+static AllocatedPath
+GetRelativePathByType(const AvailableFile &file)
+{
+  const auto base = file.GetName();
+  if (base == nullptr)
+    return nullptr;
+
+  const AllocatedPath subdir = GetFileTypeDefaultDir(file.type);
+  if (subdir == nullptr)
+    return AllocatedPath(base);
+
+  return AllocatedPath::Build(subdir, Path(base));
+}
+
+#endif
 
 #ifdef HAVE_DOWNLOAD_MANAGER
 

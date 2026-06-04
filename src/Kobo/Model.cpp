@@ -47,6 +47,8 @@ static constexpr struct {
   { "SN-RN437", KoboModel::GLO_HD },
   { "SN-N249", KoboModel::CLARA_HD },
   { "SN-N506", KoboModel::CLARA_2E },
+  { "SN-N365", KoboModel::CLARA_BW },
+  { "SN-P365", KoboModel::CLARA_BW },
   { "SN-N367", KoboModel::CLARA_COLOUR },
   { "SN-N306", KoboModel::NIA },
   { "SN-N418", KoboModel::LIBRA2 },
@@ -63,14 +65,48 @@ DetectKoboModel(const char *p) noexcept
   return KoboModel::UNKNOWN;
 }
 
+static KoboModel
+DetectKoboModelFromHwcfg() noexcept
+{
+  char buffer[512];
+  if (!ReadFromFile("/dev/disk/by-partlabel/hwcfg", 0, buffer, sizeof(buffer)))
+    return KoboModel::UNKNOWN;
+
+  for (const auto &i : kobo_model_ids) {
+    const size_t id_len = strlen(i.id);
+    for (size_t offset = 0; offset + id_len <= sizeof(buffer); ++offset) {
+      if (memcmp(buffer + offset, i.id, id_len) == 0)
+        return i.model;
+    }
+  }
+
+  return KoboModel::UNKNOWN;
+}
+
 KoboModel
 DetectKoboModel() noexcept
 {
   char buffer[16];
-  if (!ReadFromFile("/dev/mmcblk0", 0x200, buffer, sizeof(buffer)))
-    return KoboModel::UNKNOWN;
+  if (ReadFromFile("/dev/mmcblk0", 0x200, buffer, sizeof(buffer))) {
+    const KoboModel model = DetectKoboModel(buffer);
+    if (model != KoboModel::UNKNOWN)
+      return model;
+  }
 
-  return DetectKoboModel(buffer);
+  return DetectKoboModelFromHwcfg();
+}
+
+bool
+IsKoboMediaTek() noexcept
+{
+  switch (DetectKoboModel()) {
+  case KoboModel::CLARA_BW:
+  case KoboModel::CLARA_COLOUR:
+    return true;
+
+  default:
+    return false;
+  }
 }
 
 const char *
@@ -79,11 +115,21 @@ GetKoboWifiInterface() noexcept
   switch (DetectKoboModel())
   {
     case KoboModel::LIBRA2:
+    case KoboModel::CLARA_BW:
+    case KoboModel::CLARA_COLOUR:
       return "wlan0";
     case KoboModel::CLARA_2E:
-    case KoboModel::CLARA_COLOUR:
       return "mlan0";
     default:
       return "eth0";
   }
+}
+
+const char *
+GetKoboOnboardPartition() noexcept
+{
+  if (IsKoboMediaTek())
+    return "/dev/mmcblk0p12";
+
+  return "/dev/mmcblk0p3";
 }

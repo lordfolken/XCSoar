@@ -10,7 +10,7 @@ sections_to_install=()
 
 # Parse arguments
 if [ "$#" -eq 0 ]; then
-  sections_to_install=("UPDATE" "BASE" "MANUAL" "LINUX" "WAYLAND" "DEBIAN" "LLVM" "LIBINPUT_GBM" "ARM" "WIN" "KOBO" "ANDROID")
+  sections_to_install=("UPDATE" "BASE" "MANUAL" "LINUX" "WAYLAND" "DEBIAN" "LLVM" "LIBINPUT_GBM" "ARM" "WIN" "KOBO" "KOBO_NICKEL" "ANDROID")
 else
   for arg in "$@"
   do
@@ -133,6 +133,33 @@ install_kobo() {
   echo
 }
 
+install_kobo_nickel() {
+  echo Installing KOBO_NICKEL dependencies...
+  apt-get install "${APTOPTS[@]}" \
+      docker.io \
+      g++-arm-linux-gnueabihf \
+      wget
+  install_kobo
+
+  # Debian trixie+ only ships GCC 14 cross; KOBO_NICKEL needs GCC 10 libstdc++
+  # linked against Nickel's older glibc (from bullseye).
+  if ! command -v arm-linux-gnueabihf-g++-10 >/dev/null; then
+    echo Installing bullseye GCC 10 cross toolchain...
+    if [ ! -f /etc/apt/sources.list.d/bullseye-cross.list ]; then
+      echo 'deb http://deb.debian.org/debian bullseye main' \
+        > /etc/apt/sources.list.d/bullseye-cross.list
+      printf 'Package: *\nPin: release n=bullseye\nPin-Priority: 100\n' \
+        > /etc/apt/preferences.d/bullseye-pin
+      apt-get update
+    fi
+    apt-get install "${APTOPTS[@]}" -t bullseye \
+      g++-10-arm-linux-gnueabihf gcc-10-arm-linux-gnueabihf \
+      cpp-10-arm-linux-gnueabihf libstdc++-10-dev-armhf-cross \
+      libgcc-10-dev-armhf-cross
+  fi
+  echo
+}
+
 install_android() {
   echo Installing dependencies for the Android target, not including SDK / NDK...
   apt-get install "${APTOPTS[@]}" default-jdk-headless vorbis-tools adb libtool \
@@ -177,6 +204,9 @@ for section in "${sections_to_install[@]}"; do
       ;;
     KOBO)
       install_kobo
+      ;;
+    KOBO_NICKEL)
+      install_kobo_nickel
       ;;
     ANDROID)
       install_android

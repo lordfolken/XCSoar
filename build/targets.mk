@@ -235,8 +235,12 @@ ifeq ($(TARGET),KOBO_NICKEL)
   # coroutines.
   HOST_TRIPLET = arm-nickel-linux-gnueabihf
   TCPREFIX = arm-linux-gnueabihf-
-  TCSUFFIX = -10
-  NICKEL_SYSROOT ?= /tc/arm-nickel-linux-gnueabihf/arm-nickel-linux-gnueabihf/sysroot
+  # Host GCC for C++20; prefer system GCC 10 cross, else newest /usr cross GCC.
+  NICKEL_GCC_ROOT ?= /usr
+  NICKEL_GCC_VERSION ?= $(shell if command -v arm-linux-gnueabihf-g++-10 >/dev/null 2>&1; then echo 10; elif [ -d /usr/arm-linux-gnueabihf/include/c++/10 ]; then echo 10; else ls -1 /usr/lib/gcc-cross/arm-linux-gnueabihf 2>/dev/null | sort -n | tail -1; fi)
+  TCSUFFIX = -$(NICKEL_GCC_VERSION)
+  NICKEL_TC_DIR ?= $(if $(wildcard /tc/arm-nickel-linux-gnueabihf),/tc,$(HOME)/tc)
+  NICKEL_SYSROOT ?= $(NICKEL_TC_DIR)/arm-nickel-linux-gnueabihf/arm-nickel-linux-gnueabihf/sysroot
 
   # Keep the first milestone focused on a local framebuffer binary; network and
   # audio support can be re-enabled once the base launch path is proven.
@@ -541,12 +545,15 @@ ifeq ($(TARGET_IS_KOBO),y)
   ifeq ($(TARGET_IS_KOBO_NICKEL),y)
     TARGET_ARCH += -no-pie
     TARGET_CPPFLAGS += --sysroot=$(NICKEL_SYSROOT)
-    TARGET_CPPFLAGS += -isystem /usr/arm-linux-gnueabihf/include/c++/10
-    TARGET_CPPFLAGS += -isystem /usr/arm-linux-gnueabihf/include/c++/10/arm-linux-gnueabihf
-  TARGET_CPPFLAGS += -isystem /usr/arm-linux-gnueabihf/include/c++/10/backward
-  TARGET_CPPFLAGS += -isystem $(NICKEL_SYSROOT)/usr/include
-  TARGET_CPPFLAGS += -DTARGET_IS_KOBO_NICKEL
-  TARGET_CXXFLAGS += -include $(abspath build/kobo_nickel_libstdcxx_compat.hpp)
+    TARGET_CPPFLAGS += -isystem $(abspath build/nickel-stubs)
+    TARGET_CPPFLAGS += -isystem $(NICKEL_GCC_ROOT)/arm-linux-gnueabihf/include/c++/$(NICKEL_GCC_VERSION)
+    TARGET_CPPFLAGS += -isystem $(NICKEL_GCC_ROOT)/arm-linux-gnueabihf/include/c++/$(NICKEL_GCC_VERSION)/arm-linux-gnueabihf
+    TARGET_CPPFLAGS += -isystem $(NICKEL_GCC_ROOT)/arm-linux-gnueabihf/include/c++/$(NICKEL_GCC_VERSION)/backward
+    TARGET_CPPFLAGS += -isystem $(NICKEL_SYSROOT)/usr/include
+    TARGET_CPPFLAGS += -DTARGET_IS_KOBO_NICKEL
+    TARGET_CXXFLAGS += -include $(abspath build/kobo_nickel_libstdcxx_compat.hpp)
+    # GCC 10 warns on [[nodiscard]] base constructors in mem-initializers.
+    TARGET_CXXFLAGS += -Wno-unused-result -Wno-attributes
   else
     TCPREFIX = $(abspath $(THIRDPARTY_LIBS_DIR))/bin/$(HOST_TRIPLET)-
   endif
@@ -583,7 +590,8 @@ TARGET_LDADD =
 
 ifeq ($(TARGET_IS_KOBO_NICKEL),y)
   TARGET_LDFLAGS += --sysroot=$(NICKEL_SYSROOT)
-  TARGET_LDFLAGS += -L/usr/lib/gcc-cross/arm-linux-gnueabihf/10
+  TARGET_LDFLAGS += -L$(NICKEL_GCC_ROOT)/lib/gcc-cross/arm-linux-gnueabihf/$(NICKEL_GCC_VERSION)
+  TARGET_LDFLAGS += -L$(NICKEL_SYSROOT)/usr/lib
   TARGET_LDFLAGS += -B$(NICKEL_SYSROOT)/usr/lib/
   TARGET_LDFLAGS += -static-libstdc++ -static-libgcc
   TARGET_LDFLAGS += -Wl,-rpath,/usr/local/Kobo -Wl,-rpath,/usr/local/Qt-5.2.1-arm/lib

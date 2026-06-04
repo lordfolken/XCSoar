@@ -206,6 +206,7 @@ TopCanvas::TopCanvas(UI::Display &_display)
   case KoboModel::AURA2:
   case KoboModel::CLARA_HD:
   case KoboModel::CLARA_2E:
+  case KoboModel::CLARA_BW:
   case KoboModel::CLARA_COLOUR:
   case KoboModel::LIBRA2:
   case KoboModel::LIBRA_H2O:
@@ -395,6 +396,7 @@ TopCanvas::Flip()
               kobo_model == KoboModel::LIBRA_H2O ||
               kobo_model == KoboModel::CLARA_HD ||
               kobo_model == KoboModel::CLARA_2E ||
+              kobo_model == KoboModel::CLARA_BW ||
               kobo_model == KoboModel::CLARA_COLOUR)
              ? WAVEFORM_MODE_A2
              : WAVEFORM_MODE_AUTO),

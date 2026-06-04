@@ -9,6 +9,12 @@ Version 7.45 - not yet released
   - Netto vario (when derived from the polar) and vario speed-to-fly
     push/pull arrows use true airspeed against the density-scaled polar sink
     and speed-to-fly
+* kobo
+  - Add Kobo Clara BW (N365/P365) and Clara Colour (N367) support on
+    MediaTek hardware via KOBO_NICKEL build (FBInk, 32 bpp framebuffer):
+    hwcfg model detection, 300 DPI, onboard partition on mmcblk0p12, stock
+    kernel (no custom uImage), bd71827 battery sysfs, wlan0/nl80211 Wi-Fi;
+    USB export and OTG not yet supported on this platform
 * android
   - BLE serial ports now support Nordic UART Service (NUS) for e.g. Naviter
     dongles, in addition to HM-10; the protocol is auto-detected at connection

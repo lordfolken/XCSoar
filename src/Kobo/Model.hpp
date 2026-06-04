@@ -18,6 +18,7 @@ enum class KoboModel {
   GLO_HD,
   CLARA_HD,
   CLARA_2E,
+  CLARA_BW,
   CLARA_COLOUR,
   NIA,
   LIBRA2,
@@ -29,5 +30,13 @@ KoboModel
 DetectKoboModel() noexcept;
 
 [[gnu::const]]
+bool
+IsKoboMediaTek() noexcept;
+
+[[gnu::const]]
 const char *
 GetKoboWifiInterface() noexcept;
+
+[[gnu::const]]
+const char *
+GetKoboOnboardPartition() noexcept;

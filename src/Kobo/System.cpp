@@ -108,8 +108,9 @@ bool
 KoboMountData()
 {
 #ifdef KOBO
-  Run("/bin/dosfsck", "-a", "-w", "/dev/mmcblk0p3");
-  return mount("/dev/mmcblk0p3", "/mnt/onboard", "vfat",
+  const char *const partition = GetKoboOnboardPartition();
+  Run("/bin/dosfsck", "-a", "-w", partition);
+  return mount(partition, "/mnt/onboard", "vfat",
                MS_NOATIME|MS_NODEV|MS_NOEXEC|MS_NOSUID,
                "iocharset=utf8");
 #else
@@ -122,12 +123,19 @@ KoboExportUSBStorage()
 {
 #ifdef KOBO
   bool result = false;
+  StaticString<64> file_arg;
+  file_arg.Format("file=%s", GetKoboOnboardPartition());
 
   RmMod("g_ether");
   RmMod("g_file_storage");
 
   switch (DetectKoboModel())
   {
+  case KoboModel::CLARA_BW:
+  case KoboModel::CLARA_COLOUR:
+    /* USB mass-storage export on MediaTek Kobos not yet implemented. */
+    break;
+
   case KoboModel::UNKNOWN: // Let unknown try the old device
   case KoboModel::MINI:
   case KoboModel::TOUCH:
@@ -135,7 +143,7 @@ KoboExportUSBStorage()
   case KoboModel::GLO: // TODO: is this correct?
     InsMod("/drivers/ntx508/usb/gadget/arcotg_udc.ko");
     result = InsMod("/drivers/ntx508/usb/gadget/g_file_storage.ko",
-                    "file=/dev/mmcblk0p3", "stall=0", "removable=1",
+                    file_arg, "stall=0", "removable=1",
                     "product_id=Kobo");
     break;
 
@@ -144,20 +152,19 @@ KoboExportUSBStorage()
   case KoboModel::AURA2:
     InsMod("/drivers/mx6sl-ntx/usb/gadget/arcotg_udc.ko");
     result = InsMod("/drivers/mx6sl-ntx/usb/gadget/g_file_storage.ko",
-                    "file=/dev/mmcblk0p3", "stall=0", "removable=1",
+                    file_arg, "stall=0", "removable=1",
                     "product_id=Kobo");
     break;
 
   case KoboModel::CLARA_HD:
   case KoboModel::CLARA_2E:
-  case KoboModel::CLARA_COLOUR:
   case KoboModel::LIBRA2:
   case KoboModel::LIBRA_H2O:
     InsMod("/drivers/mx6sll-ntx/usb/gadget/configfs.ko");
     InsMod("/drivers/mx6sll-ntx/usb/gadget/libcomposite.ko");
     InsMod("/drivers/mx6sll-ntx/usb/gadget/usb_f_mass_storage.ko");
     result = InsMod("/drivers/mx6sll-ntx/usb/gadget/g_file_storage.ko",
-                    "file=/dev/mmcblk0p3", "stall=0", "removable=1",
+                    file_arg, "stall=0", "removable=1",
                     "product_id=Kobo");
     break;
 
@@ -166,7 +173,7 @@ KoboExportUSBStorage()
     InsMod("/drivers/mx6ull-ntx/usb/gadget/libcomposite.ko");
     InsMod("/drivers/mx6ull-ntx/usb/gadget/usb_f_mass_storage.ko");
     result = InsMod("/drivers/mx6ull-ntx/usb/gadget/g_file_storage.ko",
-                    "file=/dev/mmcblk0p3", "stall=0", "removable=1",
+                    file_arg, "stall=0", "removable=1",
                     "product_id=Kobo");
     break;
   }
@@ -182,7 +189,6 @@ KoboUnexportUSBStorage()
 #ifdef KOBO
   KoboModel kobo_model = DetectKoboModel();
   if(kobo_model == KoboModel::CLARA_HD || kobo_model == KoboModel::CLARA_2E
-      || kobo_model == KoboModel::CLARA_COLOUR
       || kobo_model == KoboModel::LIBRA2 || kobo_model == KoboModel::LIBRA_H2O)
   {
     RmMod("g_file_storage");
@@ -299,10 +305,14 @@ KoboWifiOn()
     break;
 
   case KoboModel::CLARA_2E:
-  case KoboModel::CLARA_COLOUR:
     InsMod("/drivers/mx6sll-ntx/wifi/sdio_wifi_pwr.ko");
     InsMod("/drivers/mx6sll-ntx/wifi/mlan.ko");
     InsMod("/drivers/mx6sll-ntx/wifi/moal.ko", "mod_para=nxp/wifi_mod_para_sd8987.conf");
+    break;
+
+  case KoboModel::CLARA_BW:
+  case KoboModel::CLARA_COLOUR:
+    /* Wi-Fi modules are loaded by the stock MediaTek kernel. */
     break;
   }
 
@@ -311,12 +321,12 @@ KoboWifiOn()
   const char *interface = GetKoboWifiInterface();
   const char *driver = (DetectKoboModel() == KoboModel::LIBRA2
     || DetectKoboModel() == KoboModel::CLARA_2E
-    || DetectKoboModel() == KoboModel::CLARA_COLOUR) ? "nl80211" : "wext";
+    || IsKoboMediaTek()) ? "nl80211" : "wext";
 
   Run("/sbin/ifconfig", interface, "up");
   Run("/sbin/iwconfig", interface, "power", "off");
   if (DetectKoboModel() != KoboModel::CLARA_2E &&
-      DetectKoboModel() != KoboModel::CLARA_COLOUR)
+      !IsKoboMediaTek())
     Run("/bin/wlarm_le", "-i", interface, "up");
   Run("/bin/wpa_supplicant", "-i", interface,
       "-c", "/etc/wpa_supplicant/wpa_supplicant.conf",
@@ -342,13 +352,16 @@ KoboWifiOff()
 #ifdef KOBO
   const char *interface =  GetKoboWifiInterface();
   Run("/usr/bin/killall", "wpa_supplicant", "udhcpc");
-  if (DetectKoboModel() != KoboModel::CLARA_2E)
+  if (DetectKoboModel() != KoboModel::CLARA_2E &&
+      !IsKoboMediaTek())
     Run("/bin/wlarm_le", "-i", interface, "down");
   Run("/sbin/ifconfig", interface, "down");
 
-  RmMod("dhd");
-  RmMod("8189fs");
-  RmMod("sdio_wifi_pwr");
+  if (!IsKoboMediaTek()) {
+    RmMod("dhd");
+    RmMod("8189fs");
+    RmMod("sdio_wifi_pwr");
+  }
 
   return true;
 #else
@@ -415,6 +428,7 @@ KoboCanChangeBacklightBrightness()
   case KoboModel::GLO_HD:
   case KoboModel::LIBRA2:
   case KoboModel::CLARA_2E:
+  case KoboModel::CLARA_BW:
   case KoboModel::CLARA_COLOUR:
   case KoboModel::CLARA_HD:
     return true;
@@ -442,6 +456,7 @@ KoboGetBacklightBrightness()
 
   case KoboModel::LIBRA2:
   case KoboModel::CLARA_2E:
+  case KoboModel::CLARA_BW:
   case KoboModel::CLARA_COLOUR:
   case KoboModel::CLARA_HD:
     if (File::ReadString(Path("/sys/class/backlight/mxc_msp430.0/brightness"), line, sizeof(line))) {
@@ -474,6 +489,7 @@ KoboSetBacklightBrightness([[maybe_unused]] int percent)
 
   case KoboModel::LIBRA2:
   case KoboModel::CLARA_2E:
+  case KoboModel::CLARA_BW:
   case KoboModel::CLARA_COLOUR:
   case KoboModel::CLARA_HD:
     File::WriteExisting(Path("/sys/class/backlight/mxc_msp430.0/brightness"), std::to_string(percent).c_str());
@@ -513,11 +529,15 @@ KoboGetBacklightColourFile() noexcept
 
   switch (DetectKoboModel()) {
   case KoboModel::CLARA_2E:
-  case KoboModel::CLARA_COLOUR:
     files_to_check[0] = true;
     break;
 
   case KoboModel::CLARA_HD:
+    files_to_check[1] = true;
+    break;
+
+  case KoboModel::CLARA_BW:
+  case KoboModel::CLARA_COLOUR:
     files_to_check[1] = true;
     break;
 

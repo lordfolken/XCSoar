@@ -7,15 +7,25 @@
 # This script is launched by /etc/inittab on boot.  It initialises the
 # Kobo Mini and launches XCSoar's KoboMenu.
 
-/bin/mount -o remount,noatime,nodiratime /dev/mmcblk0p1 /
+model=`dd if=/dev/mmcblk0 bs=8 count=1 skip=64`
+if strings /dev/disk/by-partlabel/hwcfg 2>/dev/null | grep -q 'SN-N365\|SN-P365\|SN-N367'; then
+    # MediaTek eMMC layout (Clara BW/Colour): user data on p12, root already mounted
+    onboard=/dev/mmcblk0p12
+elif [ `expr substr $model 1 7` = SN-N365 ] || [ `expr substr $model 1 7` = SN-P365 ] || \
+    [ `expr substr $model 1 7` = SN-N367 ]; then
+    onboard=/dev/mmcblk0p12
+else
+    /bin/mount -o remount,noatime,nodiratime /dev/mmcblk0p1 /
+    onboard=/dev/mmcblk0p3
+fi
 
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 umask 022
 
 # mount the data partition
-/bin/dosfsck -a -w /dev/mmcblk0p3
+/bin/dosfsck -a -w $onboard
 /bin/mkdir -p /mnt/onboard
-/bin/mount -t vfat -o iocharset=utf8 /dev/mmcblk0p3 /mnt/onboard
+/bin/mount -t vfat -o iocharset=utf8 $onboard /mnt/onboard
 /bin/rm -rf /mnt/onboard/fsck* /mnt/onboard/FSCK*
 
 # launch the original Kobo init script if:
@@ -78,7 +88,6 @@ sleep 1
 
 # load kernel modules for ClaraHD, Libra2 and Libra H2O as factory kernel is OTG
 # but missing modules. Also put ClaraHD and Libra2 in the right mode
-model=`dd if=/dev/mmcblk0 bs=8 count=1 skip=64`
 if [ `expr substr $model 1 7` = SN-N418 ] || [ `expr substr $model 1 7` = SN-N249 ] || \
     [ `expr substr $model 1 7` = SN-N873 ] || [ `expr substr $model 1 7` = SN-N506 ]; then
     insmod "/opt/xcsoar/lib/modules/4.1.15/drivers/usb/serial/usbserial.ko"

@@ -378,6 +378,7 @@ GetNotificationDisclosureText() noexcept
 
 /* ---- Cloud consent text ---- */
 
+#ifdef HAVE_SKYLINES_TRACKING
 static const char *
 GetCloudConsentText() noexcept
 {
@@ -391,6 +392,7 @@ GetCloudConsentText() noexcept
     "You can change this at any time in "
     "[Config > Tracking](xcsoar://config/tracking).");
 }
+#endif
 
 #ifdef HAVE_SKYLINES_TRACKING
 /**

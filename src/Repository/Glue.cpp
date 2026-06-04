@@ -30,7 +30,9 @@
 static constexpr std::string_view USER_REPOSITORY_FILE_PREFIX{
     "user_repository_"};
 
+#ifdef HAVE_DOWNLOAD_MANAGER
 static bool repository_downloaded = false;
+#endif
 
 std::vector<RepositoryLink>
 GetUserRepositories()

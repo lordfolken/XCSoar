@@ -94,7 +94,9 @@ try {
   KoboModel kobo_model = DetectKoboModel();
   /* All Kobo except Clara HD, Clara 2E, Libra 2 and Libra H2O have a factory kernel without OTG mode so
      a custom kernel is installed for OTG. */
+  /* Kobo Clara BW uses the factory MediaTek kernel (no custom uImage). */
   if (kobo_model == KoboModel::CLARA_HD || kobo_model == KoboModel::CLARA_2E
+      || kobo_model == KoboModel::CLARA_BW
       || kobo_model == KoboModel::CLARA_COLOUR
       || kobo_model == KoboModel::LIBRA2 || kobo_model == KoboModel::LIBRA_H2O)
         return false;
@@ -120,6 +122,7 @@ IsKoboOTGHostMode()
 #ifdef KOBO
   KoboModel kobo_model = DetectKoboModel();
   if (kobo_model != KoboModel::CLARA_HD && kobo_model != KoboModel::CLARA_2E
+      && kobo_model != KoboModel::CLARA_BW
       && kobo_model != KoboModel::CLARA_COLOUR
       && kobo_model != KoboModel::LIBRA2 && kobo_model != KoboModel::LIBRA_H2O)
         return IsKoboCustomKernel();

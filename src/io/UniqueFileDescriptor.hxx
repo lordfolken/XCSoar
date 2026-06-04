@@ -13,19 +13,23 @@
  */
 class UniqueFileDescriptor : public FileDescriptor {
 public:
-	UniqueFileDescriptor() noexcept
-		:FileDescriptor(FileDescriptor::Undefined()) {}
+	UniqueFileDescriptor() noexcept {
+		fd = FileDescriptor::Undefined().Get();
+	}
 
-	explicit UniqueFileDescriptor(int _fd) noexcept
-		:FileDescriptor(_fd) {}
+	explicit UniqueFileDescriptor(int _fd) noexcept {
+		fd = _fd;
+	}
 
-	explicit UniqueFileDescriptor(FileDescriptor _fd) noexcept
-		:FileDescriptor(_fd) {}
+	explicit UniqueFileDescriptor(FileDescriptor _fd) noexcept {
+		fd = _fd.Get();
+	}
 
 	UniqueFileDescriptor(const UniqueFileDescriptor &) = delete;
 
-	UniqueFileDescriptor(UniqueFileDescriptor &&other) noexcept
-		:FileDescriptor(other.Steal()) {}
+	UniqueFileDescriptor(UniqueFileDescriptor &&other) noexcept {
+		fd = other.Steal();
+	}
 
 	~UniqueFileDescriptor() noexcept {
 		Close();
