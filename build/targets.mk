@@ -242,9 +242,6 @@ ifeq ($(TARGET),KOBO_NICKEL)
   NICKEL_TC_DIR ?= $(if $(wildcard /tc/arm-nickel-linux-gnueabihf),/tc,$(HOME)/tc)
   NICKEL_SYSROOT ?= $(NICKEL_TC_DIR)/arm-nickel-linux-gnueabihf/arm-nickel-linux-gnueabihf/sysroot
 
-  # Keep the first milestone focused on a local framebuffer binary; network and
-  # audio support can be re-enabled once the base launch path is proven.
-  HAVE_HTTP = n
   ENABLE_ALSA = n
 endif
 
@@ -596,7 +593,12 @@ ifeq ($(TARGET_IS_KOBO_NICKEL),y)
   TARGET_LDFLAGS += -static-libstdc++ -static-libgcc
   TARGET_LDFLAGS += -Wl,-rpath,/usr/local/Kobo -Wl,-rpath,/usr/local/Qt-5.2.1-arm/lib
   TARGET_LDLIBS += $(NICKEL_SYSROOT)/usr/lib/libm.so
-  TARGET_LDLIBS += $(NICKEL_SYSROOT)/usr/lib/libcrypto.so
+  ifeq ($(HAVE_HTTP),n)
+    TARGET_LDLIBS += $(NICKEL_SYSROOT)/usr/lib/libcrypto.so
+  else
+    # Static curl/openssl/libsodium need circular resolution (e.g. libnotam → json).
+    XCSOAR_LINK_GROUP = y
+  endif
   TARGET_LDLIBS += -lfbink
 endif
 

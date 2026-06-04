@@ -34,6 +34,10 @@ $(THIRDPARTY_LIBS_DIR)/stamp:
 ifneq ($(TARGET_IS_KOBO)$(TARGET_IS_KOBO_NICKEL),yn)
 TARGET_CPPFLAGS += -isystem $(THIRDPARTY_LIBS_ROOT)/include
 TARGET_LDFLAGS += -L$(THIRDPARTY_LIBS_ROOT)/lib
+else ifeq ($(TARGET_IS_KOBO_NICKEL)$(HAVE_HTTP),yy)
+# HTTP uses static third-party curl/openssl/libsodium on Nickel.
+TARGET_CPPFLAGS += -isystem $(THIRDPARTY_LIBS_ROOT)/include
+TARGET_LDFLAGS += -L$(THIRDPARTY_LIBS_ROOT)/lib
 endif
 
 endif

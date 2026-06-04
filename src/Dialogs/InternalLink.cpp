@@ -20,6 +20,7 @@
 #include "Dialogs/Settings/Panels/NetworkConfigPanel.hpp"
 #include "Dialogs/Settings/Panels/WeatherConfigPanel.hpp"
 #include "Dialogs/Settings/Panels/SafetyFactorsConfigPanel.hpp"
+#include "Tracking/Features.hpp"
 #ifdef HAVE_TRACKING
 #include "Dialogs/Settings/Panels/TrackingConfigPanel.hpp"
 #endif

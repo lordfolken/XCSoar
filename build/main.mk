@@ -494,7 +494,6 @@ XCSOAR_SOURCES := \
 	$(SRC)/Profile/RouteProfile.cpp \
 	$(SRC)/Profile/ContestProfile.cpp \
 	$(SRC)/Profile/TaskProfile.cpp \
-	$(SRC)/Profile/ContestProfile.cpp \
 	$(SRC)/Profile/MapProfile.cpp \
 	$(SRC)/Profile/PageProfile.cpp \
 	$(SRC)/Profile/UIProfile.cpp \
