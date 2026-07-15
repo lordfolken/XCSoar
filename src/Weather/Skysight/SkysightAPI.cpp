@@ -605,6 +605,13 @@ SkysightAPI::CancelTileDownloads() noexcept
 }
 
 void
+SkysightAPI::ReconcileTileDownloads(
+  const std::set<std::string, std::less<>> &desired_keys) noexcept
+{
+  request->ReconcileTileDownloads(desired_keys);
+}
+
+void
 SkysightAPI::EnsureDatafile(const SkySight::Layer &layer,
                             time_t forecast_time,
                             std::string_view link)
