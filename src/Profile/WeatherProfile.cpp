@@ -24,9 +24,12 @@ namespace Profile {
 
 namespace Profile {
   static void Load(const ProfileMap &map, SkysightSettings &settings) {
-    map.Get(ProfileKeys::SkysightEmail, settings.email);
-    map.Get(ProfileKeys::SkysightPassword, settings.password);
-    map.Get(ProfileKeys::SkysightRegion, settings.region);
+    if (!map.Get(ProfileKeys::SkySightEmail, settings.email))
+      map.Get(ProfileKeys::LegacySkysightEmail, settings.email);
+    if (!map.Get(ProfileKeys::SkySightPassword, settings.password))
+      map.Get(ProfileKeys::LegacySkysightPassword, settings.password);
+    if (!map.Get(ProfileKeys::SkySightRegion, settings.region))
+      map.Get(ProfileKeys::LegacySkysightRegion, settings.region);
   }
 }
 

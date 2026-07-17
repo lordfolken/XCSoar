@@ -291,10 +291,15 @@ constexpr std::string_view PCMetUsername = "PCMetUsername";
 constexpr std::string_view PCMetPassword = "PCMetPassword";
 constexpr std::string_view PCMetFtpUsername = "PCMetFtpUsername";
 constexpr std::string_view PCMetFtpPassword = "PCMetFtpPassword";
-constexpr std::string_view SkysightEmail = "SkysightEmail";
-constexpr std::string_view SkysightPassword = "SkysightPassword";
-constexpr std::string_view SkysightRegion = "SkysightRegion";
-constexpr std::string_view SkysightSelectedLayers = "SkysightSelectedLayers";
+constexpr std::string_view SkySightEmail = "SkySightEmail";
+constexpr std::string_view SkySightPassword = "SkySightPassword";
+constexpr std::string_view SkySightRegion = "SkySightRegion";
+constexpr std::string_view SkySightSelectedLayers = "SkySightSelectedLayers";
+constexpr std::string_view LegacySkysightEmail = "SkysightEmail";
+constexpr std::string_view LegacySkysightPassword = "SkysightPassword";
+constexpr std::string_view LegacySkysightRegion = "SkysightRegion";
+constexpr std::string_view LegacySkysightSelectedLayers =
+  "SkysightSelectedLayers";
 
 constexpr std::string_view EnableThermalInformationMap = "EnableThermalInformationMap";
 

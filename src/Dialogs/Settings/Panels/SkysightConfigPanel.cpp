@@ -75,11 +75,11 @@ SkysightConfigPanel::Save(bool &_changed) noexcept
   bool changed = false;
   auto &settings = CommonInterface::SetComputerSettings().weather;
 
-  changed |= SaveValue(SKYSIGHT_EMAIL, ProfileKeys::SkysightEmail,
+  changed |= SaveValue(SKYSIGHT_EMAIL, ProfileKeys::SkySightEmail,
                        settings.skysight.email);
-  changed |= SaveValue(SKYSIGHT_PASSWORD, ProfileKeys::SkysightPassword,
+  changed |= SaveValue(SKYSIGHT_PASSWORD, ProfileKeys::SkySightPassword,
                        settings.skysight.password);
-  changed |= SaveValue(SKYSIGHT_REGION, ProfileKeys::SkysightRegion,
+  changed |= SaveValue(SKYSIGHT_REGION, ProfileKeys::SkySightRegion,
                        settings.skysight.region);
 
   if (changed)

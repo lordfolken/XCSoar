@@ -516,7 +516,9 @@ Skysight::ReloadSelectedLayersFromProfile()
 {
   api->ClearSelectedLayers();
 
-  const char *configured_layers = Profile::Get(ProfileKeys::SkysightSelectedLayers);
+  const char *configured_layers = Profile::Get(ProfileKeys::SkySightSelectedLayers);
+  if (configured_layers == nullptr)
+    configured_layers = Profile::Get(ProfileKeys::LegacySkysightSelectedLayers);
   if (configured_layers == nullptr || *configured_layers == '\0')
     return;
 
@@ -550,7 +552,7 @@ Skysight::SaveSelectedLayers() const
     value += layer->id;
   }
 
-  Profile::Set(ProfileKeys::SkysightSelectedLayers, value.c_str());
+  Profile::Set(ProfileKeys::SkySightSelectedLayers, value.c_str());
 }
 
 void
