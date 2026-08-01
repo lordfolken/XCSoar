@@ -38,8 +38,7 @@ CreateControlsModel(const PageLayout &layout) noexcept
   case PageLayout::Overlay::SKYSIGHT:
 #ifdef HAVE_HTTP
     if (const auto skysight = DataGlobals::GetSkysight(); skysight != nullptr)
-      return std::make_unique<SkysightControlsModel>(
-        skysight, layout.skysight_overlay.c_str());
+      return std::make_unique<SkysightControlsModel>(skysight);
     break;
 #else
     break;
