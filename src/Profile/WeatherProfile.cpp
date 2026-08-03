@@ -30,6 +30,7 @@ namespace Profile {
       map.Get(ProfileKeys::LegacySkysightPassword, settings.password);
     if (!map.Get(ProfileKeys::SkySightRegion, settings.region))
       map.Get(ProfileKeys::LegacySkysightRegion, settings.region);
+    map.Get(ProfileKeys::SkySightAutoUpdate, settings.auto_update);
   }
 }
 
