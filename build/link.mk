@@ -69,7 +69,8 @@ $$($(2)_OBJS): CPPFLAGS += $$(foreach i,$$($(2)_DEPENDS_FLAT),$$($$(i)_CPPFLAGS)
 # Link the unstripped binary
 $$($(2)_NOSTRIP): $$($(2)_OBJS) $$($(2)_LDADD) $$(TARGET_LDADD) | $$(TARGET_BIN_DIR)/dirstamp
 	@$$(NQ)echo "  LINK    $$@"
-	$$(Q)$$(LINK) $$(ld-flags) -o $$@ $$^ $$($(2)_LDLIBS) $$(ld-libs)
+	$$(file >$$@.rsp,$$(ld-flags) -o $$@ $$^ $$($(2)_LDLIBS) $$(ld-libs))
+	$$(Q)$$(LINK) @$$@.rsp
 
 # Strip the binary (optional)
 ifeq ($$($(2)_STRIP),y)
@@ -142,7 +143,8 @@ endif
 
 $$($(2)_NOSTRIP): $$($(2)_OBJS) $$($(2)_LDADD) $$(TARGET_LDADD) | $$(ABI_BIN_DIR)/dirstamp
 	@$$(NQ)echo "  LINK    $$@"
-	$$(Q)$$(LINK) $$(ld-flags) -o $$@ $$^ $$($(2)_LDLIBS) $$(ld-libs)
+	$$(file >$$@.rsp,$$(ld-flags) -o $$@ $$^ $$($(2)_LDLIBS) $$(ld-libs))
+	$$(Q)$$(LINK) @$$@.rsp
 
 # Strip the binary (optional)
 ifeq ($$($(2)_STRIP),y)
@@ -173,7 +175,8 @@ $$($(2)_OBJS): CPPFLAGS += $(patsubst %,$$(%_CPPFLAGS),$($(2)_DEPENDS))
 # Link
 $$($(2)_BIN): $$($(2)_OBJS)
 	@$$(NQ)echo "  AR      $$@"
-	$$(Q)$$(AR) $$(ARFLAGS) $$@ $$^
+	$$(file >$$@.rsp,$$(ARFLAGS) $$@ $$^)
+	$$(Q)$$(AR) @$$@.rsp
 
 $(2)_LIBS = $$($(2)_BIN)
 $(2)_LDADD = $$($(2)_BIN)

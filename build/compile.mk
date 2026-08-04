@@ -101,20 +101,26 @@ $(ABI_OUTPUT_DIR)/%.i: %.c FORCE
 WRAPPED_CC = $(strip $(CCACHE) $(CC))
 WRAPPED_CXX = $(strip $(CCACHE) $(CXX))
 
+# Write flags to a GCC response file with $(file) so the make recipe and
+# the cc1plus argv stay under ARG_MAX.  WIN*OPENGL CI hit this once
+# GeoTIFF/PROJ/ANGLE/SDL flags accumulated on every translation unit.
 $(ABI_OUTPUT_DIR)/%$(OBJ_SUFFIX): %.c | $$(dir $$@)dirstamp $(compile-depends)
 	@$(NQ)echo "  CC      $@"
-	$(Q)$(WRAPPED_CC) $< -c -o $@ $(cc-flags)
+	$(file >$@.rsp,$(cc-flags))
+	$(Q)$(WRAPPED_CC) $< -c -o $@ @$@.rsp
 
 $(ABI_OUTPUT_DIR)/%$(OBJ_SUFFIX): %.cpp | $$(dir $$@)dirstamp $(compile-depends)
 	@$(NQ)echo "  CXX     $@"
-	$(Q)$(WRAPPED_CXX) $< -c -o $@ $(cxx-flags)
+	$(file >$@.rsp,$(cxx-flags))
+	$(Q)$(WRAPPED_CXX) $< -c -o $@ @$@.rsp
 ifeq ($(IWYU),y)
 	$(Q)iwyu $< $(cxx-flags)
 endif
 
 $(ABI_OUTPUT_DIR)/%$(OBJ_SUFFIX): %.cxx | $$(dir $$@)dirstamp $(compile-depends)
 	@$(NQ)echo "  CXX     $@"
-	$(Q)$(WRAPPED_CXX) $< -c -o $@ $(cxx-flags)
+	$(file >$@.rsp,$(cxx-flags))
+	$(Q)$(WRAPPED_CXX) $< -c -o $@ @$@.rsp
 ifeq ($(IWYU),y)
 	$(Q)iwyu $< $(cxx-flags)
 endif
