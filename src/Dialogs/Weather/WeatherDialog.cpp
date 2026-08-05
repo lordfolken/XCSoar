@@ -16,6 +16,7 @@
 
 #ifdef HAVE_HTTP
 #include "SkysightDialog.hpp"
+#include "Dialogs/Settings/Panels/SkysightConfigPanel.hpp"
 #endif
 #if 0
 #include "MapOverlayWidget.hpp"
@@ -37,6 +38,18 @@
 static int weather_page = 0;
 
 #ifdef HAVE_HTTP
+static std::unique_ptr<Widget>
+CreateSkysightTabWidget() noexcept
+{
+  return CreateWeatherCredentialGateWidget(
+    []() {
+      return CommonInterface::GetComputerSettings()
+        .weather.skysight.IsDefined();
+    },
+    CreateSkysightConfigPanel,
+    CreateSkysightWidget);
+}
+
 static std::unique_ptr<Widget>
 CreateXCThermTabWidget() noexcept
 {
@@ -125,7 +138,7 @@ ShowWeatherDialog(const char *page)
   if (page != nullptr && StringIsEqual(page, "skysight"))
     start_page = widget.GetSize();
 
-  widget.AddTab(CreateSkysightWidget(), "SkySight");
+  widget.AddTab(CreateSkysightTabWidget(), "SkySight");
 #endif
 
 #ifdef HAVE_NOAA
