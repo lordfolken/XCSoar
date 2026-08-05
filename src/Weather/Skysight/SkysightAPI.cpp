@@ -7,6 +7,7 @@
 #include "SkysightCache.hpp"
 #include "SkySightFileDecoder.hpp"
 #include "SkySightLimits.hpp"
+#include "SkySightPayloadSuffixes.hpp"
 #include "SkySightRequest.hpp"
 #include "SkySightURL.hpp"
 #include "Skysight.hpp"
@@ -142,7 +143,7 @@ GetUrlSuffix(std::string_view url)
 [[nodiscard]] bool
 NeedsNetCdfDecodeSuffix(std::string_view suffix) noexcept
 {
-  return suffix == ".nc" || suffix == ".nc.min" || suffix == ".min";
+  return SkySight::EqualsAny(suffix, SkySight::NETCDF_DECODE_URL_SUFFIXES);
 }
 
 [[nodiscard]] bool
