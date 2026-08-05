@@ -54,6 +54,9 @@ public:
   explicit Skysight(CurlGlobal &curl);
   ~Skysight();
 
+  /** Stop polling and cancel network/decode work before teardown. */
+  void BeginShutdown() noexcept;
+
   void Init();
 
   [[nodiscard]] static AllocatedPath GetCachePath() noexcept;

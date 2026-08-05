@@ -254,7 +254,18 @@ Skysight::Skysight(CurlGlobal &curl)
   Init();
 }
 
-Skysight::~Skysight() = default;
+Skysight::~Skysight()
+{
+  BeginShutdown();
+}
+
+void
+Skysight::BeginShutdown() noexcept
+{
+  request_timer.Cancel();
+  if (api != nullptr)
+    api->BeginShutdown();
+}
 
 AllocatedPath
 Skysight::GetCachePath() noexcept

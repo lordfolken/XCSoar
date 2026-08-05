@@ -197,7 +197,25 @@ SkysightAPI::SkysightAPI(Skysight &_owner, CurlGlobal &curl, Path _cache_path)
   InitialiseLayers(layers);
 }
 
-SkysightAPI::~SkysightAPI() = default;
+SkysightAPI::~SkysightAPI()
+{
+  BeginShutdown();
+}
+
+void
+SkysightAPI::BeginShutdown() noexcept
+{
+  if (shutting_down)
+    return;
+
+  shutting_down = true;
+  ResetPreloadProgress();
+  pending_decode_jobs.clear();
+  if (decode_job != nullptr)
+    decode_job->Cancel();
+  if (request != nullptr)
+    request->BeginShutdown();
+}
 
 AllocatedPath
 SkysightAPI::GetRegionsCachePath() const noexcept
@@ -430,6 +448,9 @@ void
 SkysightAPI::Configure(std::string_view email, std::string_view password,
                        std::string_view new_region)
 {
+  if (shutting_down)
+    return;
+
   ResetPreloadProgress();
   region = FindSkysightRegionById(new_region.empty()
                                   ? std::string_view{GetDefaultSkysightRegion().id}
@@ -476,6 +497,9 @@ SkysightAPI::GetDatafilesRetryRemainingSeconds() const noexcept
 void
 SkysightAPI::Poll() noexcept
 {
+  if (shutting_down)
+    return;
+
   if (request->Poll())
     OnThrottleEnded();
 
@@ -760,6 +784,11 @@ bool
 SkysightAPI::QueueDecodeJob(SkySightPreparedData prepared, const SkySight::Layer &layer,
                             time_t forecast_time) noexcept
 {
+  if (shutting_down) {
+    OnDatafileError(layer.id, forecast_time);
+    return false;
+  }
+
   try {
     pending_decode_jobs.push_back(PendingDecodeJob{
       std::move(prepared),
@@ -779,7 +808,7 @@ SkysightAPI::QueueDecodeJob(SkySightPreparedData prepared, const SkySight::Layer
 void
 SkysightAPI::StartNextDecodeJob() noexcept
 {
-  if (pending_decode_jobs.empty())
+  if (shutting_down || pending_decode_jobs.empty())
     return;
 
   if (decode_job == nullptr) {

@@ -18,6 +18,8 @@
 #endif
 #ifdef HAVE_HTTP
 #include "Weather/xctherm/XCThermDownloadGlue.hpp"
+#include "DataGlobals.hpp"
+#include "Weather/Skysight/Skysight.hpp"
 #endif
 
 NetComponents::NetComponents(EventLoop &event_loop, CurlGlobal &curl,
@@ -94,5 +96,9 @@ NetComponents::BeginShutdown() noexcept
 
   if (notam != nullptr)
     notam->BeginShutdown();
+
+  if (const auto skysight = DataGlobals::GetSkysight();
+      skysight != nullptr)
+    skysight->BeginShutdown();
 #endif
 }
