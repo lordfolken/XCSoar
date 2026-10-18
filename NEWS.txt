@@ -284,8 +284,11 @@ Version 7.46 - not yet released
     preserve max weight and glider name when sending a polar #2397
   - fix changing the empty mass of the active plane not reaching
     the vario; a send before the polar is known is sent when the
-    polar arrives, and that reply does not put the old mass back
-    #3353
+    polar arrives, and that reply does not put the old mass back.
+    Activating another plane sends that plane's whole polar when
+    polar sync is Send, and does not copy its empty mass onto the
+    vario's curve. A save that leaves the empty mass alone does not
+    resend ballast #3353
   - fix IGC downloads from LX Navigation loggers (Colibri, LX20,
     LX7007 IGC) showing about 65000 m for negative pressure
     altitudes #3075
